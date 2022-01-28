@@ -23,7 +23,7 @@ def get_person_and_question():
     name, date = get_random_person()
 
     # Спрашиваем когда он родился
-    answer = input(f'Когда родился {name} ')
+    answer = input(f'Когда родился {name}? ')
 
     # Если введенный год совпадает с правильным
     if answer == date:
