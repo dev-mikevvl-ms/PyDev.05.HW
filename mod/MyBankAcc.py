@@ -1,13 +1,14 @@
 import sys
-from mod.MVVlStd import glSep_s, inp_FltAVali_fefi
+from mod.MVVlStd import glSep_s, inp_FltAVali_fefi, Menu_c
 # from mod.MVVlStd import glSep_s, inp_FltAVali_fefi
 # from MVVlStd import glSep_s, inp_FltAVali_fefi
 # import MVVlStd
 # # MVVlStd.inp_FltAVali_fefi('?')
 # # inp_FltAVali_fefi('?')
-from mod.MVVlMenu import MVVlMenu_c
+# from mod.MVVlMenu import Menu_c
 
 tInnStt_d = dict(kAccSum_n=0, kHstT_l=[])
+
 def tRefillAcc_fm(self, file=sys.stdout):
   # loAdd_n = inp_FltAVali_fefi(f' Введите сумму на сколько пополнить счет\n',
   loAdd_n = inp_FltAVali_fefi(f' сумму на сколько пополнить счет\n',
@@ -66,18 +67,18 @@ def prn_InnStt_fmp(self, laInnStt_d, file=sys.stdout):
 
 def main(laArgs: list[str]) -> None:
   # Ww(sys.argv[1:])
-  tMenu_o = MVVlMenu_c({1:('Пополнение счета', tRefillAcc_fm),
+  tMenu_o = Menu_c({1:('Пополнение счета', tRefillAcc_fm),
     '2':('Покупка', tBuy_fmp),
     '3':('История покупок', tVieHst_fmp),
     # 'E':('Выход', tExit_fm),
     '4':('Выход', tExit_fm)
     }, InnStt_d=tInnStt_d, PrnInnStt_fmp=prn_InnStt_fmp,
     HeaFmt_s= glSep_s[:len(glSep_s)//3 *2] + '\nМой банковский счет:')
-  # tMenu_o = MVVlMenu_c()
+  # tMenu_o = Menu_c()
   # tMenu_o.add_Itm?_ffm(...)
   # tRes_d = tMenu_o.run_ffpm()
   tRes_d = tMenu_o()
-  # tRes_d = MVVlMenu_c(...)()
+  # tRes_d = Menu_c(...)()
   # print(tRes_d)
   return tRes_d
   
