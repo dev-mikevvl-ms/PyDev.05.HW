@@ -18,38 +18,38 @@ from mod.MVVlStd import glSep_s, inp_FltAVali_fefi
 # import copy
 # @dataclass
 # class D:
-#   MenuEls_d: dict = field(default_factory=dict)
+#   MenuItm_d: dict = field(default_factory=dict)
 #   InnStt_d: dict = field(default_factory=dict)
-#   ElsFmt_s: str = '{_k!s:>2}. {_v[0]}'
-#   ElFmt_s: str = See(prn_Info_fmp):*(f'{_k}. {self.MenuEls_d[_k][0]}' for _k in self)
+#   ItmFmt_s: str = '{_k!s:>2}. {_v[0]}'
+#   ElFmt_s: str = See(prn_Info_fmp):*(f'{_k}. {self.MenuItm_d[_k][0]}' for _k in self)
 #   InnSttFmt_s: str = None # Df |==''> !OuP |> Sf.format(**tInnStt_d)
 #   # See(prn_Info_fmp)                                                    '({kAccSum_n:{kWid_i}})'.format(**tInnStt_d)
 #   HeaFmt_s: str = None # Df(Rat(glSep_s)) |==''> !OuP |> ??Sf.format(**self.OuPPP_d)
 #   FooFmt_s: str = None # Df(Rat(glSep_s)) |==''> !OuP |> ??Sf.format(**self.OuPPP_d)
-#   # self.OuPPP_d AllEls_co, VieEls_(co|l), MaxWid_i
+#   # self.OuPPP_d AllItm_co, VieItm_(co|l), MaxWid_i
 #   # x: list = field(default_factory=list)
 #   def __post_init__(self):
-#     # self.MenuEls_d = copy.deepcopy(dict(self.MenuEls_d))
-#     self.MenuEls_d = dict(self.MenuEls_d)
+#     # self.MenuItm_d = copy.deepcopy(dict(self.MenuItm_d))
+#     self.MenuItm_d = dict(self.MenuItm_d)
 #     self.InnStt_d = copy.deepcopy(dict(self.InnStt_d))
-#     self.IsRun_b = bool(self.MenuEls_d)
+#     self.IsRun_b = bool(self.MenuItm_d)
 from dataclasses import dataclass, field
 from collections.abc import Callable
 import copy
 @dataclass
 class MVVlMenu_c():
 
-  MenuEls_d: dict = field(default_factory=dict)
+  MenuItm_d: dict = field(default_factory=dict)
   InnStt_d: dict = None
   PrnInnStt_fmp: Callable = None # [self, dict, file]; ??Df: IF InnStt_d is !None -> print(InnStt_d)
-  IterSortKey_f: Callable = None # [key] ??(Prop4Set): AsIn2MenuEls_d OR (lambda _el: str(_el))|int
+  IterSortKey_f: Callable = None # [key] ??(Prop4Set): AsIn2MenuItm_d OR (lambda _el: str(_el))|int
   HeaFmt_s: str = None
   FooFmt_s: str = None
-  ElsFmt_s: str = '{_k!s:>2}. {_v[0]}'
+  ItmFmt_s: str = '{_k!s:>2}. {_v[0]}'
   
   def __post_init__(self):
-    # self.MenuEls_d = copy.deepcopy(dict(self.MenuEls_d))
-    self.MenuEls_d = dict(self.MenuEls_d)
+    # self.MenuItm_d = copy.deepcopy(dict(self.MenuItm_d))
+    self.MenuItm_d = dict(self.MenuItm_d)
     if self.InnStt_d is not None:
       self.InnStt_d = copy.deepcopy(dict(self.InnStt_d))
       if self.PrnInnStt_fmp is None:
@@ -60,37 +60,37 @@ class MVVlMenu_c():
     else: self.FooFmt_s = glSep_s[:len(glSep_s)//3 *2]
     
   #     # laIsKeyExit_cll=lambda _sf, _k: int(_k) == max(iter(_sf))
-  # def __init__(self, MenuEls_d=None, InnStt_d=None, PrnInnStt_fmp=None,
-  #     HeaFmt_s=None, FooFmt_s=None, ElsFmt_s='{_k!s:>2}. {_v[0]}'):
-  #   self.MenuEls_d = dict(MenuEls_d) if MenuEls_d is not None else {}
+  # def __init__(self, MenuItm_d=None, InnStt_d=None, PrnInnStt_fmp=None,
+  #     HeaFmt_s=None, FooFmt_s=None, ItmFmt_s='{_k!s:>2}. {_v[0]}'):
+  #   self.MenuItm_d = dict(MenuItm_d) if MenuItm_d is not None else {}
   #   self.InnStt_d = dict(InnStt_d) if InnStt_d is not None else {}
   #   self.PrnInnStt_fmp = PrnInnStt_fmp
   #   if HeaFmt_s is not None: self.HeaFmt_s = str(HeaFmt_s)
   #   else: self.HeaFmt_s = glSep_s[:len(glSep_s)//3 *2]
   #   if FooFmt_s is not None: self.FooFmt_s = str(FooFmt_s)
   #   else: self.FooFmt_s = glSep_s[:len(glSep_s)//3 *2]
-  #   self.ElsFmt_s = ElsFmt_s
-    self.IsRun_b = bool(self.MenuEls_d)
+  #   self.ItmFmt_s = ItmFmt_s
+    self.IsRun_b = bool(self.MenuItm_d)
     # self.kAccSum_n = int(laAccSum_n)
     # self.kHstT_l = list(laHstT_l) if laHstT_l is not None else []
     # self.IsKeyExit_cll = laIsKeyExit_cll
 
   def __iter__(self): # 2Do: MaB Onl WhiUse(prn_fmp)
     if self.IterSortKey_f is None:
-      return (_k for _k in self.MenuEls_d.keys())
-    return (_k for _k in sorted(self.MenuEls_d.keys(), key=self.IterSortKey_f))
+      return (_k for _k in self.MenuItm_d.keys())
+    return (_k for _k in sorted(self.MenuItm_d.keys(), key=self.IterSortKey_f))
   def __getitem__(self, key): # BOf:KISS
-    return self.MenuEls_d[key]
+    return self.MenuItm_d[key]
   def __len__(self): # BOf:KISS
-    return len(self.MenuEls_d)
+    return len(self.MenuItm_d)
   def __contains__(self, key): # BOf:KISS
-    return key in self.MenuEls_d
+    return key in self.MenuItm_d
 
   # def oup_fmp(self): # 2Do: MaB
-  def prn_fmp(self, file=sys.stdout): # 2Do: MaB Onl(9+KeyExit OR Fit2Scr+KeyExit) w/Set(sf.WhiVieElsKey_l)
-    if bool(self.MenuEls_d):
+  def prn_fmp(self, file=sys.stdout): # 2Do: MaB Onl(9+KeyExit OR Fit2Scr+KeyExit) w/Set(sf.WhiVieItmKey_l)
+    if bool(self.MenuItm_d):
       if self.HeaFmt_s != '': print(self.HeaFmt_s, file=file)
-      print(*(self.ElsFmt_s.format(_k=_k, _v=self[_k]) for _k in self),
+      print(*(self.ItmFmt_s.format(_k=_k, _v=self[_k]) for _k in self),
           sep='\n', file=file)
       self.prn_Info_fmp(file=file)
       # print(glSep_s[:len(glSep_s)//3 *2], file=file)
@@ -105,8 +105,8 @@ class MVVlMenu_c():
   #   print(f"На счету:({la_d['kAccSum_n']:.2f}) и в истории покупок {len(la_d['kHstT_l'])} зап.",
   #       glSep_s[:len(glSep_s)//3 *2], sep='\n', file=file)
 
-  # def add_Els?_ffm(self):
-  # def del_Els?_ffpm(self):
+  # def add_Itm?_ffm(self):
+  # def del_Itm?_ffpm(self):
   # def get_Keys?_ffpm(self):
 
   # def run_ffpm(self):
@@ -118,7 +118,7 @@ class MVVlMenu_c():
       # li_s = input(' Выберите пункт меню: ')
       li_s = inp_FltAVali_fefi(f' пункт меню', laInPTypeFlt_cll=None,
           file=file)[0].strip()
-      # if li_s in self.MenuEls_d:
+      # if li_s in self.MenuItm_d:
       if li_s in self:
         li_k = li_s
       else:
@@ -129,7 +129,7 @@ class MVVlMenu_c():
         else:
           if li_k not in self: li_k = None
       if li_k is not None:
-        # lo_cll = self.MenuEls_d[li_s][1]
+        # lo_cll = self.MenuItm_d[li_s][1]
         lo_cll = self[li_k][1]
         # if self.IsKeyExit_cll(self, li_s): break
         # if lo_cll is None: break
