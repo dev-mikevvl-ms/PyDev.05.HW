@@ -33,19 +33,42 @@ from MVVlStd import glSep_s, inp_FltAVali_fefi
 #     self.MenuEls_d = dict(self.MenuEls_d)
 #     self.InnStt_d = copy.deepcopy(dict(self.InnStt_d))
 #     self.IsRun_b = bool(self.MenuEls_d)
+from dataclasses import dataclass, field
+from collections.abc import Callable
+import copy
+@dataclass
 class MVVlMenu_c():
 
-      # laIsKeyExit_cll=lambda _sf, _k: int(_k) == max(iter(_sf))
-  def __init__(self, MenuEls_d=None, InnStt_d=None, PrnInnStt_fmp=None,
-      HeaFmt_s=None, FooFmt_s=None, ElsFmt_s='{_k!s:>2}. {_v[0]}'):
-    self.MenuEls_d = dict(MenuEls_d) if MenuEls_d is not None else {}
-    self.InnStt_d = dict(InnStt_d) if InnStt_d is not None else {}
-    self.PrnInnStt_fmp = PrnInnStt_fmp
-    if HeaFmt_s is not None: self.HeaFmt_s = str(HeaFmt_s)
+  MenuEls_d: dict = field(default_factory=dict)
+  InnStt_d: dict = None
+  PrnInnStt_fmp: Callable = None # [self, dict, file]; ??Df: IF InnStt_d is !None -> print(InnStt_d)
+  HeaFmt_s: str = None
+  FooFmt_s: str = None
+  ElsFmt_s: str = '{_k!s:>2}. {_v[0]}'
+  
+  def __post_init__(self):
+    # self.MenuEls_d = copy.deepcopy(dict(self.MenuEls_d))
+    self.MenuEls_d = dict(self.MenuEls_d)
+    if self.InnStt_d is not None:
+      self.InnStt_d = copy.deepcopy(dict(self.InnStt_d))
+      if self.PrnInnStt_fmp is None:
+        self.PrnInnStt_fmp = lambda sf_o, laInnStt_d, file=sys.stdout: print(laInnStt_d, file=file)
+    if self.HeaFmt_s is not None: self.HeaFmt_s = str(self.HeaFmt_s)
     else: self.HeaFmt_s = glSep_s[:len(glSep_s)//3 *2]
-    if FooFmt_s is not None: self.FooFmt_s = str(FooFmt_s)
+    if self.FooFmt_s is not None: self.FooFmt_s = str(self.FooFmt_s)
     else: self.FooFmt_s = glSep_s[:len(glSep_s)//3 *2]
-    self.ElsFmt_s = ElsFmt_s
+    
+  #     # laIsKeyExit_cll=lambda _sf, _k: int(_k) == max(iter(_sf))
+  # def __init__(self, MenuEls_d=None, InnStt_d=None, PrnInnStt_fmp=None,
+  #     HeaFmt_s=None, FooFmt_s=None, ElsFmt_s='{_k!s:>2}. {_v[0]}'):
+  #   self.MenuEls_d = dict(MenuEls_d) if MenuEls_d is not None else {}
+  #   self.InnStt_d = dict(InnStt_d) if InnStt_d is not None else {}
+  #   self.PrnInnStt_fmp = PrnInnStt_fmp
+  #   if HeaFmt_s is not None: self.HeaFmt_s = str(HeaFmt_s)
+  #   else: self.HeaFmt_s = glSep_s[:len(glSep_s)//3 *2]
+  #   if FooFmt_s is not None: self.FooFmt_s = str(FooFmt_s)
+  #   else: self.FooFmt_s = glSep_s[:len(glSep_s)//3 *2]
+  #   self.ElsFmt_s = ElsFmt_s
     self.IsRun_b = bool(self.MenuEls_d)
     # self.kAccSum_n = int(laAccSum_n)
     # self.kHstT_l = list(laHstT_l) if laHstT_l is not None else []
