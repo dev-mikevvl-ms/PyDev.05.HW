@@ -11,7 +11,7 @@ tInnStt_d = dict(kAccSum_n=0, kHstT_l=[])
 def tRefillAcc_fm(self, file=sys.stdout):
   # loAdd_n = inp_FltAVali_fefi(f' Введите сумму на сколько пополнить счет\n',
   loAdd_n = inp_FltAVali_fefi(f' сумму на сколько пополнить счет\n',
-      laInPTypeFlt_cll=float, laDfV_s='100',
+      laInPTypeFlt_cll=float, laDfV_s='100.00',
       laAcceptEmptyInPAsDf_b=True, laValiInPMsg_s=f'положительное число с возм.десят.точкой\n',
       laVali_cll=lambda _n: 0 <= _n, file=file)[0]
   self.InnStt_d['kAccSum_n'] += loAdd_n #DVL: input by inp_FltAVali_fefi
@@ -26,7 +26,7 @@ def tBuy_fmp(self, file=sys.stdout):
     return (None, None)
 
   loCost_n = inp_FltAVali_fefi(f" сумму покупки (на Вашем счету:{self.InnStt_d['kAccSum_n']:.2f})\n",
-      laInPTypeFlt_cll=float, laDfV_s=str(min(100, self.InnStt_d['kAccSum_n'])),
+      laInPTypeFlt_cll=float, laDfV_s=f"{min(100.00, self.InnStt_d['kAccSum_n']):.2f}",
       laAcceptEmptyInPAsDf_b=True, laValiInPMsg_s=f'положительное число с возм.десят.точкой\n',
       laVali_cll=lambda _n: 0 <= _n, file=file)[0]
 
@@ -66,13 +66,15 @@ def prn_InnStt_fmp(self, laInnStt_d, file=sys.stdout):
 
 def main(laArgs: list[str]) -> None:
   # Ww(sys.argv[1:])
-  tMenu_o = MVVlMenu_c({'1':('Пополнение счета', tRefillAcc_fm),
+  tMenu_o = MVVlMenu_c({1:('Пополнение счета', tRefillAcc_fm),
     '2':('Покупка', tBuy_fmp),
     '3':('История покупок', tVieHst_fmp),
-    '4':('Выход', tExit_fm)}, InnStt_d=tInnStt_d,
-    PrnInnStt_fmp=prn_InnStt_fmp)
+    # 'E':('Выход', tExit_fm),
+    '4':('Выход', tExit_fm)
+    }, InnStt_d=tInnStt_d, PrnInnStt_fmp=prn_InnStt_fmp,
+    HeaFmt_s= glSep_s[:len(glSep_s)//3 *2] + '\nМой банковский счет:')
   # tMenu_o = MVVlMenu_c()
-  # tMenu_o.add_Els?_ffm(...)
+  # tMenu_o.add_Itm?_ffm(...)
   # tRes_d = tMenu_o.run_ffpm()
   tRes_d = tMenu_o()
   # tRes_d = MVVlMenu_c(...)()

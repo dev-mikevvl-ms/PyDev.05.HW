@@ -42,6 +42,7 @@ class MVVlMenu_c():
   MenuEls_d: dict = field(default_factory=dict)
   InnStt_d: dict = None
   PrnInnStt_fmp: Callable = None # [self, dict, file]; ??Df: IF InnStt_d is !None -> print(InnStt_d)
+  IterSortKey_f: Callable = None # [key] ??(Prop4Set): AsIn2MenuEls_d OR (lambda _el: str(_el))|int
   HeaFmt_s: str = None
   FooFmt_s: str = None
   ElsFmt_s: str = '{_k!s:>2}. {_v[0]}'
@@ -75,7 +76,9 @@ class MVVlMenu_c():
     # self.IsKeyExit_cll = laIsKeyExit_cll
 
   def __iter__(self): # 2Do: MaB Onl WhiUse(prn_fmp)
-    return (_k for _k in sorted(self.MenuEls_d.keys(), key=int))
+    if self.IterSortKey_f is None:
+      return (_k for _k in self.MenuEls_d.keys())
+    return (_k for _k in sorted(self.MenuEls_d.keys(), key=self.IterSortKey_f))
   def __getitem__(self, key): # BOf:KISS
     return self.MenuEls_d[key]
   def __len__(self): # BOf:KISS
@@ -91,7 +94,7 @@ class MVVlMenu_c():
           sep='\n', file=file)
       self.prn_Info_fmp(file=file)
       # print(glSep_s[:len(glSep_s)//3 *2], file=file)
-      if self.FooFmt_s != '':  print(self.FooFmt_s, file=file)
+      if self.FooFmt_s != '': print(self.FooFmt_s, file=file)
 
   # def oup_Info|Ret_fmp(self):
   # def __str__(self):; __format__; tVieHst_fmp
@@ -111,24 +114,36 @@ class MVVlMenu_c():
     while self.IsRun_b:
       self.prn_fmp(file=file)
       # self.prn_Info_fmp()
-
-      li_s = input(' Выберите пункт меню: ')
+      # loMax
+      # li_s = input(' Выберите пункт меню: ')
+      li_s = inp_FltAVali_fefi(f' пункт меню', laInPTypeFlt_cll=None,
+          file=file)[0].strip()
       # if li_s in self.MenuEls_d:
       if li_s in self:
+        li_k = li_s
+      else:
+        try: 
+          li_k = int(li_s)
+        except ValueError as le_o:
+          li_k = None
+        else:
+          if li_k not in self: li_k = None
+      if li_k is not None:
         # lo_cll = self.MenuEls_d[li_s][1]
-        lo_cll = self[li_s][1]
+        lo_cll = self[li_k][1]
         # if self.IsKeyExit_cll(self, li_s): break
         # if lo_cll is None: break
         if lo_cll is None: # 2Do:AddHst
-          print(f'DVL: None 4 calling Fu() пункт меню:"{li_s}"')
+          print(f'DVL: None 4 calling Fu() пункт меню:"{li_k}"')
           continue
         else: loRes_a = lo_cll(self, file=file) # 2Do:AddHst
       else:
           print(f'Неверный пункт меню:"{li_s}"') # 2Do:AddHst
     else: # 2Do:AddHst
       # self.prn_Info_fmp()
-      print('До свидания!', glSep_s[:len(glSep_s)//3 *2], sep='\n')
-
+      if self.HeaFmt_s != '': print(self.HeaFmt_s, file=file)
+      print('До свидания!')
+      if self.FooFmt_s != '': print(self.FooFmt_s, file=file)
     return self.InnStt_d # 2Do:RetHst
 
 # if __name__ == '__main__':
