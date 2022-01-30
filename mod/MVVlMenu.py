@@ -1,6 +1,6 @@
 import sys
-from MVVlStd import glSep_s, inp_FltAVali_fefi
-# from mod.MVVlStd import glSep_s, inp_FltAVali_fefi
+from mod.MVVlStd import glSep_s, inp_FltAVali_fefi
+# from MVVlStd import glSep_s, inp_FltAVali_fefi
 # from MVVlStd import glSep_s, inp_FltAVali_fefi
 # import MVVlStd
 # # MVVlStd.inp_FltAVali_fefi('?')

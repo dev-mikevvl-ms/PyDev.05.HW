@@ -1,11 +1,11 @@
 import sys
-from MVVlStd import glSep_s, inp_FltAVali_fefi
+from mod.MVVlStd import glSep_s, inp_FltAVali_fefi
 # from mod.MVVlStd import glSep_s, inp_FltAVali_fefi
 # from MVVlStd import glSep_s, inp_FltAVali_fefi
 # import MVVlStd
 # # MVVlStd.inp_FltAVali_fefi('?')
 # # inp_FltAVali_fefi('?')
-from MVVlMenu import MVVlMenu_c
+from mod.MVVlMenu import MVVlMenu_c
 
 tInnStt_d = dict(kAccSum_n=0, kHstT_l=[])
 def tRefillAcc_fm(self, file=sys.stdout):

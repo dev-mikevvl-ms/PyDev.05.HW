@@ -17,11 +17,12 @@
 - выход.
 Так же можно добавить любой дополнительный функционал по желанию.
 """
-import mod.MVVlStd, mod.victory 
+import mod.MVVlStd, mod.victory, mod.MyBankAcc
 
 
 def main(laArgs: list[str]) -> None:
   mod.victory.main(None)
+  mod.MyBankAcc.main(None)
 
 if __name__ == '__main__':
     # import sys
