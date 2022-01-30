@@ -17,12 +17,16 @@
 - выход.
 Так же можно добавить любой дополнительный функционал по желанию.
 """
-import mod.MVVlMenu, mod.victory, mod.MyBankAcc
+import mod.MVVlMenu, mod.MVVlStd, mod.victory, mod.MyBankAcc
 
 
 def main(laArgs: list[str]) -> None:
   # mod.victory.main(None)
-  mod.MyBankAcc.main(None)
+  # mod.MyBankAcc.main(None)
+  t_l = mod.MVVlStd.glStdMsg4InP_l[:]
+  t_l[0] = 'Выберите'
+  print(t_l[0], mod.MVVlStd.glStdMsg4InP_l[0])
+  print(mod.MVVlStd.inp_FltAVali_fefi(' пункт меню', laMsg4InP_l=t_l))
 
 if __name__ == '__main__':
     # import sys

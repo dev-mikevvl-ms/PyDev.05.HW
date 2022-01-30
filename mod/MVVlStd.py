@@ -38,20 +38,23 @@ import sys
 glScrWid_s = 70
 glSep_s = '_' *glScrWid_s
 
+glStdMsg4InP_l = [' Please, Input', ' and press Enter',
+    'your value will be validated as', 'on default ',
+    'MSG: It remains to input {} more value{}.']
 def inp_FltAVali_fefi(laWhatInPMsg_s, laInPValues_co=1, laValiInPMsg_s='',
     laVali_cll=None, laInPTypeFlt_cll=int, laMaxInPTry_co=11,
-    laAcceptEmptyInPAsDf_b=False, laDfV_s=None,
+    laAcceptEmptyInPAsDf_b=False, laDfV_s=None, laMsg4InP_l=glStdMsg4InP_l,
     laVerbose_i=None, file=sys.stdout) -> tuple:
   if laInPValues_co < 1: raise ValueError(f'laInPValues_co must be > 0, now:{laInPValues_co}')
   loTypeAValiFlsCo_l, loRes_l, loMaxTry_co = [0, 0], [], int(max(laInPValues_co, laMaxInPTry_co))
   if laValiInPMsg_s and laVali_cll:
-    lo_s = f' - your value will be validated as({laValiInPMsg_s}'
+    lo_s = f' - {laMsg4InP_l[2]}({laValiInPMsg_s}'
     if lo_s[-1] == '\n': lo_s = lo_s[:-1] + ') -\n'
     else: lo_s += ') -'
   else: lo_s = ''
-  lo_s = f" Please, Input{laWhatInPMsg_s}{lo_s} and press Enter"
+  lo_s = laMsg4InP_l[0] + f"{laWhatInPMsg_s}{lo_s}" + laMsg4InP_l[1]
   if laAcceptEmptyInPAsDf_b and laDfV_s is not None:
-    lo_s += f"(on default '{laDfV_s}')"
+    lo_s += f"({laMsg4InP_l[3]}'{laDfV_s}')"
   loInPMsg_s = f"{lo_s}: "
   for l_co in range(loMaxTry_co):
     li_s = input(loInPMsg_s)
@@ -91,7 +94,9 @@ def inp_FltAVali_fefi(laWhatInPMsg_s, laInPValues_co=1, laValiInPMsg_s='',
         lo_s = '' if l_co == (loMaxTry_co -2) else 's'
         lo_s = f' and {loMaxTry_co - l_co -1} attempt{lo_s} left'
     else: lo_s = ''
-    print(f'MSG: It remains to input {laInPValues_co - len(loRes_l)} more value{lo_s}.', file=file)
+    if laMsg4InP_l[-1]:
+      print(laMsg4InP_l[-1].format(laInPValues_co - len(loRes_l), lo_s), file=file)
+    # print(f'MSG: It remains to input {laInPValues_co - len(loRes_l)} more value{lo_s}.', file=file)
   return tuple(loRes_l)
 # print(inp_FltAVali_fefi(laInPValues_co=2, laInPTypeFlt_cll=float, laMaxInPTry_co=1),
 #  inp_FltAVali_fefi(laValiWhatInPMsg_s=tCndInPMsg_s,

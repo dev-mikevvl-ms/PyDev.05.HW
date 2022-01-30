@@ -51,7 +51,7 @@ def tVieHst_fmp(self, file=sys.stdout):
       *enumerate(self.InnStt_d['kHstT_l'], 1), '', sep='\n', file=file)
   return (self.InnStt_d['kAccSum_n'], len(self.InnStt_d['kHstT_l']))
 
-def tExit_fm(self):
+def tExit_fm(self, file=sys.stdout):
   self.IsRun_b = False
 
 # tMenu_d = {'1':('Пополнение счета', tRefillAcc_fm, ??Type??(Exit, Back, SbMenu, CtrlVieMenu??)),

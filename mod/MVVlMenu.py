@@ -107,9 +107,9 @@ class MVVlMenu_c():
   # def get_Keys?_ffpm(self):
 
   # def run_ffpm(self):
-  def __call__(self):
+  def __call__(self, file=sys.stdout):
     while self.IsRun_b:
-      self.prn_fmp()
+      self.prn_fmp(file=file)
       # self.prn_Info_fmp()
 
       li_s = input(' Выберите пункт меню: ')
@@ -122,7 +122,7 @@ class MVVlMenu_c():
         if lo_cll is None: # 2Do:AddHst
           print(f'DVL: None 4 calling Fu() пункт меню:"{li_s}"')
           continue
-        else: loRes_a = lo_cll(self) # 2Do:AddHst
+        else: loRes_a = lo_cll(self, file=file) # 2Do:AddHst
       else:
           print(f'Неверный пункт меню:"{li_s}"') # 2Do:AddHst
     else: # 2Do:AddHst
