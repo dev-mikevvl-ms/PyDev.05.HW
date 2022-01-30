@@ -77,9 +77,11 @@ class MVVlMenu_c():
   def __iter__(self): # 2Do: MaB Onl WhiUse(prn_fmp)
     return (_k for _k in sorted(self.MenuEls_d.keys(), key=int))
   def __getitem__(self, key): # BOf:KISS
-      return self.MenuEls_d[key]
-  def __len__(self, key): # BOf:KISS
-      return len(self.MenuEls_d)
+    return self.MenuEls_d[key]
+  def __len__(self): # BOf:KISS
+    return len(self.MenuEls_d)
+  def __contains__(self, key): # BOf:KISS
+    return key in self.MenuEls_d
 
   # def oup_fmp(self): # 2Do: MaB
   def prn_fmp(self, file=sys.stdout): # 2Do: MaB Onl(9+KeyExit OR Fit2Scr+KeyExit) w/Set(sf.WhiVieElsKey_l)
@@ -111,22 +113,23 @@ class MVVlMenu_c():
       # self.prn_Info_fmp()
 
       li_s = input(' Выберите пункт меню: ')
-      if li_s in self.MenuEls_d:
-        lo_cll = self.MenuEls_d[li_s][1]
-        # if self.IsKeyExit_cll(self, li_s): break
+      # if li_s in self.MenuEls_d:
+      if li_s in self:
+        # lo_cll = self.MenuEls_d[li_s][1]
+        lo_cll = self[li_s][1]
         # if self.IsKeyExit_cll(self, li_s): break
         # if lo_cll is None: break
-        if lo_cll is None:
+        if lo_cll is None: # 2Do:AddHst
           print(f'DVL: None 4 calling Fu() пункт меню:"{li_s}"')
           continue
-        else: loRes_b = lo_cll(self)
+        else: loRes_a = lo_cll(self) # 2Do:AddHst
       else:
-          print(f'Неверный пункт меню:"{li_s}"')
-    else:
+          print(f'Неверный пункт меню:"{li_s}"') # 2Do:AddHst
+    else: # 2Do:AddHst
       # self.prn_Info_fmp()
       print('До свидания!', glSep_s[:len(glSep_s)//3 *2], sep='\n')
 
-    return self.InnStt_d
+    return self.InnStt_d # 2Do:RetHst
 
 # if __name__ == '__main__':
 #     import sys
