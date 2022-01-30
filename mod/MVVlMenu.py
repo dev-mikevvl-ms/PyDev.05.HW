@@ -41,8 +41,10 @@ class MVVlMenu_c():
     self.MenuEls_d = dict(MenuEls_d) if MenuEls_d is not None else {}
     self.InnStt_d = dict(InnStt_d) if InnStt_d is not None else {}
     self.PrnInnStt_fmp = PrnInnStt_fmp
-    self.HeaFmt_s = HeaFmt_s
-    self.FooFmt_s = FooFmt_s
+    if HeaFmt_s is not None: self.HeaFmt_s = str(HeaFmt_s)
+    else: self.HeaFmt_s = glSep_s[:len(glSep_s)//3 *2]
+    if FooFmt_s is not None: self.FooFmt_s = str(FooFmt_s)
+    else: self.FooFmt_s = glSep_s[:len(glSep_s)//3 *2]
     self.ElsFmt_s = ElsFmt_s
     self.IsRun_b = bool(self.MenuEls_d)
     # self.kAccSum_n = int(laAccSum_n)
@@ -53,19 +55,18 @@ class MVVlMenu_c():
     return (_k for _k in sorted(self.MenuEls_d.keys(), key=int))
   def __getitem__(self, key): # BOf:KISS
       return self.MenuEls_d[key]
+  def __len__(self, key): # BOf:KISS
+      return len(self.MenuEls_d)
 
   # def oup_fmp(self): # 2Do: MaB
   def prn_fmp(self, file=sys.stdout): # 2Do: MaB Onl(9+KeyExit OR Fit2Scr+KeyExit) w/Set(sf.WhiVieElsKey_l)
     if bool(self.MenuEls_d):
-      # print(self.HeaFmt_s, file=file)
-      print(glSep_s[:len(glSep_s)//3 *2],
-          # *(f'{_k}. {self.MenuEls_d[_k][0]}' for _k in self),
-          *(self.ElsFmt_s.format(_k=_k, _v=self[_k]) for _k in self),
-          # *(f'{_k}. {_v[0]}' for _k, _v in self.MenuEls_d.items()),
-          glSep_s[:len(glSep_s)//3], sep='\n', file=file)
+      if self.HeaFmt_s != '': print(self.HeaFmt_s, file=file)
+      print(*(self.ElsFmt_s.format(_k=_k, _v=self[_k]) for _k in self),
+          sep='\n', file=file)
       self.prn_Info_fmp(file=file)
-      print(glSep_s[:len(glSep_s)//3 *2], file=file)
-      # print(self.FooFmt_s, file=file)
+      # print(glSep_s[:len(glSep_s)//3 *2], file=file)
+      if self.FooFmt_s != '':  print(self.FooFmt_s, file=file)
 
   # def oup_Info|Ret_fmp(self):
   # def __str__(self):; __format__; tVieHst_fmp
@@ -155,16 +156,19 @@ def prn_InnStt_fmp(self, laInnStt_d, file=sys.stdout):
       file=file)
 
 def main(laArgs: list[str]) -> None:
+  # Ww(sys.argv[1:])
   tMenu_o = MVVlMenu_c({'1':('Пополнение счета', tRefillAcc_fm),
     '2':('Покупка', tBuy_fmp),
     '3':('История покупок', tVieHst_fmp),
-    '4':('Выход', tExit_fm)}, InnStt_d=tInnStt_d, PrnInnStt_fmp=prn_InnStt_fmp)
+    '4':('Выход', tExit_fm)}, InnStt_d=tInnStt_d,
+    PrnInnStt_fmp=prn_InnStt_fmp)
   # tMenu_o = MVVlMenu_c()
   # tMenu_o.add_Els?_ffm(...)
   # tRes_d = tMenu_o.run_ffpm()
   tRes_d = tMenu_o()
   # tRes_d = MVVlMenu_c(...)()
-  print(tRes_d)
+  # print(tRes_d)
+  return tRes_d
   
 
 
