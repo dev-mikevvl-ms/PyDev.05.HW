@@ -149,19 +149,20 @@ class Menu_c():
   fFooFmt_s: str = None
   fItmFmt_s: str = '{_k!s:>2}. {_v[0]}'
   fAddHst_b: bool = True
-  
+  fFile_o: object = sys.stdout
+
   def __post_init__(self):
     self.fMenuItm_d = dict(self.fMenuItm_d)
     if self.fInnStt_d is not None:
       self.fInnStt_d = copy.deepcopy(dict(self.fInnStt_d))
       if self.fPrnInnStt_cll is None:
-        self.fPrnInnStt_cll = lambda sf_o, lafInnStt_d, file=sys.stdout: print(lafInnStt_d, file=file)
+        self.fPrnInnStt_cll = lambda sf_o, lafInnStt_d, file=self.fFile_o: print(lafInnStt_d, file=file)
     if self.fHeaFmt_s is not None: self.fHeaFmt_s = str(self.fHeaFmt_s)
-    else: self.fHeaFmt_s = glSep_s[:len(glSep_s)//3 *2]
+    else: self.fHeaFmt_s = glSep_s
     if self.fFooFmt_s is not None: self.fFooFmt_s = str(self.fFooFmt_s)
     else: self.fFooFmt_s = glSep_s[:len(glSep_s)//3 *2]
     
-    self.fIsRun_b = bool(self.fMenuItm_d)
+    self.fRunLoop_b = bool(self.fMenuItm_d)
     if self.fAddHst_b:
       if self.fInnStt_d is None:
         self.fInnStt_d = {'kActHst_l':[]}
@@ -186,9 +187,9 @@ class Menu_c():
   def __contains__(self, key): # BOf:KISS
     return key in self.fMenuItm_d
 
-  # 2Do: MaB: oup_fmp(self, file=sys.stdout)
+  # 2Do: MaB: oup_fmp(self, file=fFile_o)
   # 2Do: MaB Onl(9+KeyExit OR Fit2Scr+KeyExit) w/Set(sf.WhiVieItmKey_l)
-  def prn_fmp(self, file=sys.stdout):
+  def prn_fmp(self, file=fFile_o):
     if bool(self.fMenuItm_d):
       if self.fHeaFmt_s != '': print(self.fHeaFmt_s, file=file)
       print(*(self.fItmFmt_s.format(_k=_k, _v=self[_k]) for _k in self),
@@ -197,7 +198,7 @@ class Menu_c():
       if self.fFooFmt_s != '': print(self.fFooFmt_s, file=file)
 
   # def __str__(self):; __format__; tVieHst_fmp
-  def prn_Info_fmp(self, file=sys.stdout):
+  def prn_Info_fmp(self, file=fFile_o):
     if self.fPrnInnStt_cll and callable(self.fPrnInnStt_cll):
       self.fPrnInnStt_cll(self, laInnStt_d=self.fInnStt_d, file=file)
 
@@ -206,10 +207,10 @@ class Menu_c():
   # def get_Keys?_ffpm(self):
 
   # def run_ffpm(self):
-  def __call__(self, file=sys.stdout): # MainLoop
+  def __call__(self, file=fFile_o): # MainLoop
     if self.fActHst_l is not None:
       self.fActHst_l.append((time.time_ns(), 'Inn', 'Beg:MainLoop', True))
-    while self.fIsRun_b:
+    while self.fRunLoop_b:
       self.prn_fmp(file=file)
       li_s = inp_FltAVali_fefi(f' пункт меню', laInPTypeFlt_cll=None,
           file=file)[0].strip()
