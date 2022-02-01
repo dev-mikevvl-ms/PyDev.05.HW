@@ -51,11 +51,6 @@ tMenu_d = dict(tMenu_l + list((_s1, [_s, None])
 tOutStt_d = dict(kRtDir_s=None, kCurDir_s=None, kDirEntry_t=None)
 # InPHstEl:(fCurDirL_ix, fInP_s, fDesc_s, fRes_a)
 
-def tVieHst_ffp(laSf_o, file=sys.stdout):
-  print(f"История покупок (всего {len(laSf_o.fOutStt_d['kBuyHstT_l'])} зап.):",
-      *enumerate(laSf_o.fOutStt_d['kBuyHstT_l'], 1), '', sep='\n', file=file)
-  return (laSf_o.fOutStt_d['kAccSum_n'], len(laSf_o.fOutStt_d['kBuyHstT_l']))
-
 def tExit_f(laSf_o, file=sys.stdout):
   laSf_o.fRunLoop_b = False
 
@@ -72,6 +67,11 @@ def tvictory_ffp(laSf_o, file=sys.stdout):
   return mod.victory.main(None)
 def tMyBankAcc_ffp(laSf_o, file=sys.stdout):
   return mod.MyBankAcc.main(None, fAFile4Prn_o=file)
+
+def tVieHst_ffp(laSf_o, file=sys.stdout):
+  print(f"История покупок (всего {len(laSf_o.fOutStt_d['kBuyHstT_l'])} зап.):",
+      *enumerate(laSf_o.fOutStt_d['kBuyHstT_l'], 1), '', sep='\n', file=file)
+  return (laSf_o.fOutStt_d['kAccSum_n'], len(laSf_o.fOutStt_d['kBuyHstT_l']))
 
 
 tMenu_d = {'1': ['Создать файл', None],
@@ -90,14 +90,14 @@ tMenu_d = {'1': ['Создать файл', None],
  'Я': ['Создатель программы', tMyInfo_ffp],
  'Ы': ['Выход', tExit_f]}
 
-def prn_OutStt_fp(laSf_o, laOutStt_d, file=sys.stdout):
+def prn_Stt_fp(laSf_o, laStt_d, file=sys.stdout):
   # 2Do: CheExs(kAccSum_n, kBuyHstT_l)
-  # if 'kAccSum_n' in laOutStt_d and 'kBuyHstT_l' in laOutStt_d:
-  loNone_b = laOutStt_d['kDirEntry_t'] is None
-  lo_s = f"kDirEntry_t=None" if loNone_b else f"{len(laOutStt_d['kDirEntry_t'])=}"
-  # loNone_b = laOutStt_d['kActHst_l'] is None
-  # lo_s += f", kActHst_l=None" if loNone_b else f", {len(laOutStt_d['kActHst_l'])=}"
-  print(f"kRtDir_s={laOutStt_d['kRtDir_s']}, kCurDir_s={laOutStt_d['kCurDir_s']}",
+  # if 'kAccSum_n' in laStt_d and 'kBuyHstT_l' in laStt_d:
+  loNone_b = laStt_d['kDirEntry_t'] is None
+  lo_s = f"kDirEntry_t=None" if loNone_b else f"{len(laStt_d['kDirEntry_t'])=}"
+  # loNone_b = laStt_d['kActHst_l'] is None
+  # lo_s += f", kActHst_l=None" if loNone_b else f", {len(laStt_d['kActHst_l'])=}"
+  print(f"kRtDir_s={laStt_d['kRtDir_s']}, kCurDir_s={laStt_d['kCurDir_s']}",
       lo_s, sep=', ', file=file)
 
 def main(laArgs: list[str], *laArg_l, **laKwArg_d) -> dict:
@@ -108,7 +108,7 @@ def main(laArgs: list[str], *laArg_l, **laKwArg_d) -> dict:
     loKwArg_d = copy.deepcopy(dict(laKwArg_d['laKMenuCrePP_d']))
   else: loKwArg_d = {}
   loAppDesc_s = 'Консольный файловый менеджер'
-  loKwArg_d.update(dict(fOutStt_d=tOutStt_d, fPrnOutStt_cll=prn_OutStt_fp,
+  loKwArg_d.update(dict(fOutStt_d=tOutStt_d, fPrnOutStt_cll=prn_Stt_fp,
       fHeaFmt_s= mod.MVVlStd.glSep_s + f'\n{loAppDesc_s}:'))
   tMenu_o = mod.MVVlStd.Menu_c(tMenu_d, **loKwArg_d)
   # mod.victory.main(None)
