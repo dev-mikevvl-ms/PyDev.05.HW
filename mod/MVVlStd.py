@@ -141,56 +141,56 @@ def inp_FltAVali_fefi(laWhatInPMsg_s, laInPValues_co=1, laValiInPMsg_s='',
 @dataclass
 class Menu_c():
 
-  fMenuItm_d: dict = field(default_factory=dict)
+  fOutMenuItm_d: dict = field(default_factory=dict)
   fOutStt_d: dict = None
   fPrnOutStt_cll: Callable = None # [self, dict, file]; ??Df: IF fOutStt_d is !None -> print(fOutStt_d)
-  fIterSortKey_cll: Callable = None # [key] ??(Prop4Set): AsIn2fMenuItm_d OR (lambda _el: str(_el))|int
+  fIterSortKey_cll: Callable = None # [key] ??(Prop4Set): AsIn2fOutMenuItm_d OR (lambda _el: str(_el))|int
   fHeaFmt_s: str = None
   fFooFmt_s: str = None
   fItmFmt_s: str = '{_k!s:>2}. {_v[0]}'
-  fAddHst_b: bool = True
-  fFile_o: object = sys.stdout
+  fActHst_l: list = None
+  fAFile4Prn_o: object = sys.stdout
 
   def __post_init__(self):
-    self.fMenuItm_d = dict(self.fMenuItm_d)
-    if self.fOutStt_d is not None:
-      self.fOutStt_d = copy.deepcopy(dict(self.fOutStt_d))
-      if self.fPrnOutStt_cll is None:
-        self.fPrnOutStt_cll = lambda sf_o, lafOutStt_d, file=self.fFile_o: print(lafOutStt_d, file=file)
+    # self.fOutMenuItm_d = dict(self.fOutMenuItm_d) # BOf:
+    # if self.fOutStt_d is not None:
+    #   # self.fOutStt_d = copy.deepcopy(dict(self.fOutStt_d))
+    #   if self.fPrnOutStt_cll is None:
+    #     self.fPrnOutStt_cll = lambda sf_o, laStt_d, file=self.fAFile4Prn_o: print(laStt_d, file=file)
     if self.fHeaFmt_s is not None: self.fHeaFmt_s = str(self.fHeaFmt_s)
     else: self.fHeaFmt_s = glSep_s
     if self.fFooFmt_s is not None: self.fFooFmt_s = str(self.fFooFmt_s)
     else: self.fFooFmt_s = glSep_s[:len(glSep_s)//3 *2]
     
-    self.fRunLoop_b = bool(self.fMenuItm_d)
-    if self.fAddHst_b:
-      if self.fOutStt_d is None:
-        self.fOutStt_d = {'kActHst_l':[]}
-      if 'kActHst_l' not in self.fOutStt_d:
-        self.fOutStt_d['kActHst_l'] = []
-      self.fActHst_l = self.fOutStt_d['kActHst_l']
+    self.fRunLoop_b = bool(self.fOutMenuItm_d)
+    if self.fActHst_l is not None:
+      # if self.fOutStt_d is None:
+      #   self.fOutStt_d = {'kActHst_l':[]}
+      # if 'kActHst_l' not in self.fOutStt_d:
+      #   self.fOutStt_d['kActHst_l'] = []
+      # self.fActHst_l = self.fOutStt_d['kActHst_l']
       self.fActHst_l.append((time.time_ns(), 'Inn', '__post_init__', True))
-    else:
-      self.fActHst_l = None
+    # else:
+    #   self.fActHst_l = None
 
   def __iter__(self): # 2Do: MaB Onl WhiUse(prn_fmp)
     if self.fIterSortKey_cll is None:
-      return (_k for _k in self.fMenuItm_d.keys())
-    return (_k for _k in sorted(self.fMenuItm_d.keys(), key=self.fIterSortKey_cll))
+      return (_k for _k in self.fOutMenuItm_d.keys())
+    return (_k for _k in sorted(self.fOutMenuItm_d.keys(), key=self.fIterSortKey_cll))
 
   def __getitem__(self, key): # BOf:KISS
-    return self.fMenuItm_d[key]
+    return self.fOutMenuItm_d[key]
 
   def __len__(self): # BOf:KISS
-    return len(self.fMenuItm_d)
+    return len(self.fOutMenuItm_d)
 
   def __contains__(self, key): # BOf:KISS
-    return key in self.fMenuItm_d
+    return key in self.fOutMenuItm_d
 
-  # 2Do: MaB: oup_fmp(self, file=fFile_o)
+  # 2Do: MaB: oup_fmp(self, file=fAFile4Prn_o)
   # 2Do: MaB Onl(9+KeyExit OR Fit2Scr+KeyExit) w/Set(sf.WhiVieItmKey_l)
-  def prn_fmp(self, file=fFile_o):
-    if bool(self.fMenuItm_d):
+  def prn_fmp(self, file=fAFile4Prn_o):
+    if bool(self.fOutMenuItm_d):
       if self.fHeaFmt_s != '': print(self.fHeaFmt_s, file=file)
       print(*(self.fItmFmt_s.format(_k=_k, _v=self[_k]) for _k in self),
           sep='\n', file=file)
@@ -198,7 +198,7 @@ class Menu_c():
       if self.fFooFmt_s != '': print(self.fFooFmt_s, file=file)
 
   # def __str__(self):; __format__; tVieHst_fmp
-  def prn_Info_fmp(self, file=fFile_o):
+  def prn_Info_fmp(self, file=fAFile4Prn_o):
     if self.fPrnOutStt_cll and callable(self.fPrnOutStt_cll):
       self.fPrnOutStt_cll(self, laOutStt_d=self.fOutStt_d, file=file)
 
@@ -207,7 +207,7 @@ class Menu_c():
   # def get_Keys?_ffpm(self):
 
   # def run_ffpm(self):
-  def __call__(self, file=fFile_o): # MainLoop
+  def __call__(self, file=fAFile4Prn_o): # MainLoop
     if self.fActHst_l is not None:
       self.fActHst_l.append((time.time_ns(), 'Inn', 'Beg:MainLoop', True))
     while self.fRunLoop_b:
@@ -240,5 +240,5 @@ class Menu_c():
         self.fActHst_l.append((time.time_ns(), 'Inn', 'End:MainLoop', True))
       if self.fFooFmt_s != '': print(self.fFooFmt_s, file=file)
 
-    return self.fOutStt_d # 2Do:RetHst
+    return self.fActHst_l # 2Do:RetHst
 

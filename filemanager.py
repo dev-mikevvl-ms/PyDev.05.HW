@@ -71,7 +71,7 @@ def tMyInfo_ffp(laSf_o, file=sys.stdout):
 def tvictory_ffp(laSf_o, file=sys.stdout):
   return mod.victory.main(None)
 def tMyBankAcc_ffp(laSf_o, file=sys.stdout):
-  return mod.MyBankAcc.main(None, fFile_o=file)
+  return mod.MyBankAcc.main(None, fAFile4Prn_o=file)
 
 
 tMenu_d = {'1': ['Создать файл', None],
@@ -95,8 +95,8 @@ def prn_OutStt_fp(laSf_o, laOutStt_d, file=sys.stdout):
   # if 'kAccSum_n' in laOutStt_d and 'kBuyHstT_l' in laOutStt_d:
   loNone_b = laOutStt_d['kDirEntry_t'] is None
   lo_s = f"kDirEntry_t=None" if loNone_b else f"{len(laOutStt_d['kDirEntry_t'])=}"
-  loNone_b = laOutStt_d['kActHst_l'] is None
-  lo_s += f", kActHst_l=None" if loNone_b else f", {len(laOutStt_d['kActHst_l'])=}"
+  # loNone_b = laOutStt_d['kActHst_l'] is None
+  # lo_s += f", kActHst_l=None" if loNone_b else f", {len(laOutStt_d['kActHst_l'])=}"
   print(f"kRtDir_s={laOutStt_d['kRtDir_s']}, kCurDir_s={laOutStt_d['kCurDir_s']}",
       lo_s, sep=', ', file=file)
 
@@ -112,7 +112,7 @@ def main(laArgs: list[str], *laArg_l, **laKwArg_d) -> dict:
       fHeaFmt_s= mod.MVVlStd.glSep_s + f'\n{loAppDesc_s}:'))
   tMenu_o = mod.MVVlStd.Menu_c(tMenu_d, **loKwArg_d)
   # mod.victory.main(None)
-  # tRes_d = mod.MyBankAcc.main(None, fFile_o=sys.stdout)
+  # tRes_d = mod.MyBankAcc.main(None, fAFile4Prn_o=sys.stdout)
   tRes_d = tMenu_o()
   print(tRes_d)
   return tRes_d

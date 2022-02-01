@@ -24,14 +24,14 @@ class Menu_c():
   fFooFmt_s: str = None
   fItmFmt_s: str = '{_k!s:>2}. {_v[0]}'
   fAddHst_b: bool = True
-  fFile_o: object = sys.stdout
+  fAFile4Prn_o: object = sys.stdout
 
   def __post_init__(self):
     self.fMenuItm_d = dict(self.fMenuItm_d)
     if self.fOutStt_d is not None:
       self.fOutStt_d = copy.deepcopy(dict(self.fOutStt_d))
       if self.fPrnOutStt_cll is None:
-        self.fPrnOutStt_cll = lambda sf_o, lafOutStt_d, file=self.fFile_o: print(lafOutStt_d, file=file)
+        self.fPrnOutStt_cll = lambda sf_o, laStt_d, file=self.fAFile4Prn_o: print(laStt_d, file=file)
     if self.fHeaFmt_s is not None: self.fHeaFmt_s = str(self.fHeaFmt_s)
     else: self.fHeaFmt_s = glSep_s
     if self.fFooFmt_s is not None: self.fFooFmt_s = str(self.fFooFmt_s)
@@ -62,9 +62,9 @@ class Menu_c():
   def __contains__(self, key): # BOf:KISS
     return key in self.fMenuItm_d
 
-  # 2Do: MaB: oup_fmp(self, file=fFile_o)
+  # 2Do: MaB: oup_fmp(self, file=fAFile4Prn_o)
   # 2Do: MaB Onl(9+KeyExit OR Fit2Scr+KeyExit) w/Set(sf.WhiVieItmKey_l)
-  def prn_fmp(self, file=fFile_o):
+  def prn_fmp(self, file=fAFile4Prn_o):
     if bool(self.fMenuItm_d):
       if self.fHeaFmt_s != '': print(self.fHeaFmt_s, file=file)
       print(*(self.fItmFmt_s.format(_k=_k, _v=self[_k]) for _k in self),
@@ -73,16 +73,16 @@ class Menu_c():
       if self.fFooFmt_s != '': print(self.fFooFmt_s, file=file)
 
   # def __str__(self):; __format__; tVieHst_fmp
-  def prn_Info_fmp(self, file=fFile_o):
+  def prn_Info_fmp(self, file=fAFile4Prn_o):
     if self.fPrnOutStt_cll and callable(self.fPrnOutStt_cll):
-      self.fPrnOutStt_cll(self, laOutStt_d=self.fOutStt_d, file=file)
+      self.fPrnOutStt_cll(self, laStt_d=self.fOutStt_d, file=file)
 
   # def add_Itms?_ffm(self):
   # def del_Itms?_ffpm(self):
   # def get_Keys?_ffpm(self):
 
   # def run_ffpm(self):
-  def __call__(self, file=fFile_o): # MainLoop
+  def __call__(self, file=fAFile4Prn_o): # MainLoop
     if self.fActHst_l is not None:
       self.fActHst_l.append((time.time_ns(), 'Inn', 'Beg:MainLoop', True))
     while self.fRunLoop_b:
@@ -170,11 +170,11 @@ def tExit_f(laSf_o, file=sys.stdout):
 #     '3':('История покупок', tVieHst_fm),
 #     '4':('Выход', None)}
 
-def prn_OutStt_fp(laSf_o, laOutStt_d, file=sys.stdout):
+def prn_OutStt_fp(laSf_o, laStt_d, file=sys.stdout):
   # 2Do: CheExs(kAccSum_n, kBuyHstT_l)
-  if 'kAccSum_n' in laOutStt_d and 'kBuyHstT_l' in laOutStt_d:
-    print(f"На счету:({laOutStt_d['kAccSum_n']:.2f})",
-        f"и в истории покупок {len(laOutStt_d['kBuyHstT_l'])} зап.",
+  if 'kAccSum_n' in laStt_d and 'kBuyHstT_l' in laStt_d:
+    print(f"На счету:({laStt_d['kAccSum_n']:.2f})",
+        f"и в истории покупок {len(laStt_d['kBuyHstT_l'])} зап.",
         # glSep_s[:len(glSep_s)//3 *2], sep='\n',
         file=file)
 
