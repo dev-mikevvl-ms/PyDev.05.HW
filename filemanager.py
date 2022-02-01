@@ -17,7 +17,7 @@
 - выход.
 Так же можно добавить любой дополнительный функционал по желанию.
 """
-import os, shutil, sys
+import copy, os, shutil, sys
 import mod.MVVlStd, mod.victory, mod.MyBankAcc
 
 # import os
@@ -67,6 +67,7 @@ def tMyInfo_ffp(laSf_o, file=sys.stdout):
   loMsg_s = "Creator/Author: Mike Vl. Vlasov <dev.mikevvl@outlook.com>."
   print(loMsg_s, file=file)
   return loMsg_s
+
 def tvictory_ffp(laSf_o, file=sys.stdout):
   return mod.victory.main(None)
 def tMyBankAcc_ffp(laSf_o, file=sys.stdout):
@@ -83,9 +84,9 @@ tMenu_d = {'1': ['Создать файл', None],
  '8': ['Посмотреть только папки', None],
  '9': ['Посмотреть только файлы', None],
  'С': ['Смена рабочей директории', None],
- 'И': ['Просмотр информации об операционной системе', tSysInfo_ffp],
  'В': ['Играть в викторину', tvictory_ffp],
  'Б': ['Мой банковский счет', tMyBankAcc_ffp],
+ 'И': ['Просмотр информации об операционной системе', tSysInfo_ffp],
  'Я': ['Создатель программы', tMyInfo_ffp],
  'Ы': ['Выход', tExit_f]}
 
@@ -100,10 +101,15 @@ def prn_InnStt_fp(laSf_o, laInnStt_d, file=sys.stdout):
       lo_s, sep=', ', file=file)
 
 def main(laArgs: list[str], *laArg_l, **laKwArg_d) -> dict:
+  ''' Arg laKMenuCrePP_d=dict(BasePP 4 Cre All Menu In2(Sf))
+  '''
   # Ww:laArgs(sys.argv[1:])
-  loKwArg_d = dict(fInnStt_d=tInnStt_d, fPrnInnStt_cll=prn_InnStt_fp,
-      fHeaFmt_s= mod.MVVlStd.glSep_s + '\nКонсольный файловый менеджер:')
-  loKwArg_d.update(laKwArg_d)
+  if 'laKMenuCrePP_d' in laKwArg_d:
+    loKwArg_d = copy.deepcopy(dict(laKwArg_d['laKMenuCrePP_d']))
+  else: loKwArg_d = {}
+  loAppDesc_s = 'Консольный файловый менеджер'
+  loKwArg_d.update(dict(fInnStt_d=tInnStt_d, fPrnInnStt_cll=prn_InnStt_fp,
+      fHeaFmt_s= mod.MVVlStd.glSep_s + f'\n{loAppDesc_s}:'))
   tMenu_o = mod.MVVlStd.Menu_c(tMenu_d, **loKwArg_d)
   # mod.victory.main(None)
   # tRes_d = mod.MyBankAcc.main(None, fFile_o=sys.stdout)

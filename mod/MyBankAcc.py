@@ -1,5 +1,6 @@
-import sys
+import copy, sys
 from mod.MVVlStd import glSep_s, inp_FltAVali_fefi, Menu_c
+import mod.MVVlStd
 # from mod.MVVlStd import glSep_s, inp_FltAVali_fefi
 # from MVVlStd import glSep_s, inp_FltAVali_fefi
 # import MVVlStd
@@ -69,10 +70,23 @@ def prn_InnStt_fp(laSf_o, laInnStt_d, file=sys.stdout):
         file=file)
 
 def main(laArgs: list[str], *laArg_l, **laKwArg_d) -> dict:
+  ''' Arg laKMenuCrePP_d=dict(BasePP 4 Cre All Menu In2(Sf))
+      Will UseW(.deepcopy)
+  '''
   # Ww:laArgs(sys.argv[1:])
-  loKwArg_d = dict(fInnStt_d=tInnStt_d, fPrnInnStt_cll=prn_InnStt_fp,
-      fHeaFmt_s= glSep_s + '\nМой банковский счет:')
-  loKwArg_d.update(laKwArg_d)
+  if 'laKMenuCrePP_d' in laKwArg_d:
+    loKwArg_d = copy.deepcopy(dict(laKwArg_d['laKMenuCrePP_d']))
+  else: loKwArg_d = {}
+  loAppDesc_s = 'Мой банковский счет'
+  loKwArg_d.update(dict(fInnStt_d=tInnStt_d, fPrnInnStt_cll=prn_InnStt_fp,
+      fHeaFmt_s= mod.MVVlStd.glSep_s + f'\n{loAppDesc_s}:'))
+  ''' Arg laKMenuCrePP_d=dict(PP 4 Upd:PP(Cre All Menu In2(Sf)))
+  '''
+  # # Ww:laArgs(sys.argv[1:])
+  # loKwArg_d = dict(fInnStt_d=tInnStt_d, fPrnInnStt_cll=prn_InnStt_fp,
+  #     fHeaFmt_s= glSep_s + '\nМой банковский счет:')
+  # if 'laKMenuCrePP_d' in laKwArg_d:
+  #   loKwArg_d.update(laKwArg_d['laKMenuCrePP_d'])
   tMenu_o = Menu_c({1:('Пополнение счета', tRefillAcc_ffp),
     '2':('Покупка', tBuy_ffp),
     '3':('История покупок', tVieHst_ffp),
