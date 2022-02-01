@@ -142,8 +142,8 @@ def inp_FltAVali_fefi(laWhatInPMsg_s, laInPValues_co=1, laValiInPMsg_s='',
 class Menu_c():
 
   fMenuItm_d: dict = field(default_factory=dict)
-  fInnStt_d: dict = None
-  fPrnInnStt_cll: Callable = None # [self, dict, file]; ??Df: IF fInnStt_d is !None -> print(fInnStt_d)
+  fOutStt_d: dict = None
+  fPrnOutStt_cll: Callable = None # [self, dict, file]; ??Df: IF fOutStt_d is !None -> print(fOutStt_d)
   fIterSortKey_cll: Callable = None # [key] ??(Prop4Set): AsIn2fMenuItm_d OR (lambda _el: str(_el))|int
   fHeaFmt_s: str = None
   fFooFmt_s: str = None
@@ -153,10 +153,10 @@ class Menu_c():
 
   def __post_init__(self):
     self.fMenuItm_d = dict(self.fMenuItm_d)
-    if self.fInnStt_d is not None:
-      self.fInnStt_d = copy.deepcopy(dict(self.fInnStt_d))
-      if self.fPrnInnStt_cll is None:
-        self.fPrnInnStt_cll = lambda sf_o, lafInnStt_d, file=self.fFile_o: print(lafInnStt_d, file=file)
+    if self.fOutStt_d is not None:
+      self.fOutStt_d = copy.deepcopy(dict(self.fOutStt_d))
+      if self.fPrnOutStt_cll is None:
+        self.fPrnOutStt_cll = lambda sf_o, lafOutStt_d, file=self.fFile_o: print(lafOutStt_d, file=file)
     if self.fHeaFmt_s is not None: self.fHeaFmt_s = str(self.fHeaFmt_s)
     else: self.fHeaFmt_s = glSep_s
     if self.fFooFmt_s is not None: self.fFooFmt_s = str(self.fFooFmt_s)
@@ -164,11 +164,11 @@ class Menu_c():
     
     self.fRunLoop_b = bool(self.fMenuItm_d)
     if self.fAddHst_b:
-      if self.fInnStt_d is None:
-        self.fInnStt_d = {'kActHst_l':[]}
-      if 'kActHst_l' not in self.fInnStt_d:
-        self.fInnStt_d['kActHst_l'] = []
-      self.fActHst_l = self.fInnStt_d['kActHst_l']
+      if self.fOutStt_d is None:
+        self.fOutStt_d = {'kActHst_l':[]}
+      if 'kActHst_l' not in self.fOutStt_d:
+        self.fOutStt_d['kActHst_l'] = []
+      self.fActHst_l = self.fOutStt_d['kActHst_l']
       self.fActHst_l.append((time.time_ns(), 'Inn', '__post_init__', True))
     else:
       self.fActHst_l = None
@@ -199,8 +199,8 @@ class Menu_c():
 
   # def __str__(self):; __format__; tVieHst_fmp
   def prn_Info_fmp(self, file=fFile_o):
-    if self.fPrnInnStt_cll and callable(self.fPrnInnStt_cll):
-      self.fPrnInnStt_cll(self, laInnStt_d=self.fInnStt_d, file=file)
+    if self.fPrnOutStt_cll and callable(self.fPrnOutStt_cll):
+      self.fPrnOutStt_cll(self, laOutStt_d=self.fOutStt_d, file=file)
 
   # def add_Itms?_ffm(self):
   # def del_Itms?_ffpm(self):
@@ -240,5 +240,5 @@ class Menu_c():
         self.fActHst_l.append((time.time_ns(), 'Inn', 'End:MainLoop', True))
       if self.fFooFmt_s != '': print(self.fFooFmt_s, file=file)
 
-    return self.fInnStt_d # 2Do:RetHst
+    return self.fOutStt_d # 2Do:RetHst
 
