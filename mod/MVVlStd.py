@@ -142,8 +142,9 @@ def inp_FltAVali_fefi(laWhatInPMsg_s, laInPValues_co=1, laValiInPMsg_s='',
 class Menu_c():
 
   fOutMenuItm_d: dict = field(default_factory=dict) # OutVar: ItmFmt(_k=Key, _v=[Desc_s, _cll, ??Type_en:(AlwOut, ...)])
-  fOutStt_d: dict = None # OutVar
-  fPrnOutStt_cll: Callable = None # OutVar # [self, dict, file]; ??(Slv:NN)Df: IF fOutStt_d is !None -> print(fOutStt_d)
+  # fOutStt_d: dict = None # OutVar
+  fAppTtl_s: str = ''
+  fPrnOutStt_cll: Callable = None # OutVar # [self, file]; ??(Slv:NN)Df: IF fOutStt_d is !None -> print(fOutStt_d)
   fIterSortKey_cll: Callable = None # [key] ??(Prop4Set): AsIn2fOutMenuItm_d OR (lambda _el: str(_el))|int
   fHeaFmt_s: str = None
   fFooFmt_s: str = None
@@ -154,7 +155,8 @@ class Menu_c():
 
   def __post_init__(self):
     if self.fHeaFmt_s is not None: self.fHeaFmt_s = str(self.fHeaFmt_s)
-    else: self.fHeaFmt_s = glSep_s
+    else:
+      self.fHeaFmt_s = glSep_s + '' if not self.fAppTtl_s else f'\n{self.fAppTtl_s}:'
     if self.fFooFmt_s is not None: self.fFooFmt_s = str(self.fFooFmt_s)
     else: self.fFooFmt_s = glSep_s[:len(glSep_s)//3 *2]
     
@@ -189,7 +191,7 @@ class Menu_c():
   # 2Do: __str__(self), __format__, tVieHst_fmp
   def prn_Info_fmp(self, file=fAFile4Prn_o):
     if self.fPrnOutStt_cll and callable(self.fPrnOutStt_cll):
-      self.fPrnOutStt_cll(self, laStt_d=self.fOutStt_d, file=file)
+      self.fPrnOutStt_cll(self, file=file)
 
   # 2Do: add_Itms?_ffm(self), del_Itms?_ffpm(self), def get_Keys?_ffpm(self):
   # ??run_ffpm(self):

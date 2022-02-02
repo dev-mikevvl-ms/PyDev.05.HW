@@ -48,7 +48,31 @@ tMenu_l = list((str(_i), [_s, None]) for _i, _s in enumerate(tDig_l, 1))
 tMenu_d = dict(tMenu_l + list((_s1, [_s, None])
     for _s1, _s in zip('ИЯВБСЫ', tAlpha_l)))
  
-tOutStt_d = dict(kRtDir_s=None, kCurDir_s=None, kDirEntry_t=None)
+glStt_d = dict(kRtDir_s=None, kCurRelDir_s=None, kDirEntry_t=None)
+
+def fll_Stt_ff(laDir_s=None, laSortKey_cll=lambda _el: _el.name.upper()) -> bool:
+  if laDir_s is None: laDir_s = os.curdir # Init|RScan
+  
+  if glStt_d['kRtDir_s'] is None: loDir_s = os.path.realpath(laDir_s)
+  else:
+    loDir_s = os.path.realpath(os.path.join(glStt_d['kRtDir_s'], glStt_d['kCurRelDir_s'], laDir_s))
+    loCommPrx_s = os.path.commonpath((glStt_d['kRtDir_s'], loDir_s)) # 2Do Cch:ValueError
+    if loCommPrx_s != glStt_d['kRtDir_s']: # Sec: loDir_s is not SbDir(glStt_d['kRtDir_s'])
+      return False
+  
+  # if os.path.exists(loDir_s) and os.path.isdir(loDir_s): # Dlg(scandir)
+  if laSortKey_cll is None:
+    glStt_d['kDirEntry_t'] = tuple(os.scandir(loDir_s))
+  else:
+    glStt_d['kDirEntry_t'] = tuple(sorted(os.scandir(loDir_s), key=laSortKey_cll))
+  if glStt_d['kRtDir_s'] is None:
+    glStt_d['kRtDir_s'] = loDir_s
+    glStt_d['kCurRelDir_s'] = os.curdir
+  else: 
+    glStt_d['kCurRelDir_s'] = os.path.relpath(loDir_s, start=glStt_d['kRtDir_s'])
+  return True
+  # else: return False
+
 # InPHstEl:(fCurDirL_ix, fInP_s, fDesc_s, fRes_a)
 
 def tExit_f(laSf_o, file=sys.stdout):
@@ -73,7 +97,6 @@ def tVieHst_ffp(laSf_o, file=sys.stdout):
       *enumerate(laSf_o.fOutStt_d['kBuyHstT_l'], 1), '', sep='\n', file=file)
   return (laSf_o.fOutStt_d['kAccSum_n'], len(laSf_o.fOutStt_d['kBuyHstT_l']))
 
-
 tMenu_d = {'1': ['Создать файл', None],
  '2': ['Создать папку', None],
  '3': ['Удалить файл', None],
@@ -90,14 +113,10 @@ tMenu_d = {'1': ['Создать файл', None],
  'Я': ['Создатель программы', tMyInfo_ffp],
  'Ы': ['Выход', tExit_f]}
 
-def prn_Stt_fp(laSf_o, laStt_d, file=sys.stdout):
-  # 2Do: CheExs(kAccSum_n, kBuyHstT_l)
-  # if 'kAccSum_n' in laStt_d and 'kBuyHstT_l' in laStt_d:
-  loNone_b = laStt_d['kDirEntry_t'] is None
-  lo_s = f"kDirEntry_t=None" if loNone_b else f"{len(laStt_d['kDirEntry_t'])=}"
-  # loNone_b = laStt_d['kActHst_l'] is None
-  # lo_s += f", kActHst_l=None" if loNone_b else f", {len(laStt_d['kActHst_l'])=}"
-  print(f"kRtDir_s={laStt_d['kRtDir_s']}, kCurDir_s={laStt_d['kCurDir_s']}",
+def prn_Stt_fp(laSf_o, file=sys.stdout):
+  loNone_b = glStt_d['kDirEntry_t'] is None
+  lo_s = f"kDirEntry_t=None" if loNone_b else f"{len(glStt_d['kDirEntry_t'])=}"
+  print(f"kRtDir_s={glStt_d['kRtDir_s']}, kCurRelDir_s={glStt_d['kCurRelDir_s']}",
       lo_s, sep=', ', file=file)
 
 def main(laArgs: list[str], *laArg_l, **laKwArg_d) -> dict:
@@ -108,8 +127,8 @@ def main(laArgs: list[str], *laArg_l, **laKwArg_d) -> dict:
     loKwArg_d = copy.deepcopy(dict(laKwArg_d['laKMenuCrePP_d']))
   else: loKwArg_d = {}
   loAppDesc_s = 'Консольный файловый менеджер'
-  loKwArg_d.update(dict(fOutStt_d=tOutStt_d, fPrnOutStt_cll=prn_Stt_fp,
-      fHeaFmt_s= mod.MVVlStd.glSep_s + f'\n{loAppDesc_s}:'))
+  loKwArg_d.update(dict(fPrnOutStt_cll=prn_Stt_fp,
+      fAppTtl_s=loAppDesc_s))
   tMenu_o = mod.MVVlStd.Menu_c(tMenu_d, **loKwArg_d)
   # mod.victory.main(None)
   # tRes_d = mod.MyBankAcc.main(None, fAFile4Prn_o=sys.stdout)
