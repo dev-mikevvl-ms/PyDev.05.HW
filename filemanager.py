@@ -96,6 +96,7 @@ def tVieHst_ffp(laSf_o, file=sys.stdout):
   print(f"История покупок (всего {len(laSf_o.fOutStt_d['kBuyHstT_l'])} зап.):",
       *enumerate(laSf_o.fOutStt_d['kBuyHstT_l'], 1), '', sep='\n', file=file)
   return (laSf_o.fOutStt_d['kAccSum_n'], len(laSf_o.fOutStt_d['kBuyHstT_l']))
+  laSf_o.fInP_s, laSf_o.fInP_k
 
 tMenu_d = {'1': ['Создать файл', None],
  '2': ['Создать папку', None],

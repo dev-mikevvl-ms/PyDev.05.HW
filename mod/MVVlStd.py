@@ -156,11 +156,13 @@ class Menu_c():
   def __post_init__(self):
     if self.fHeaFmt_s is not None: self.fHeaFmt_s = str(self.fHeaFmt_s)
     else:
-      self.fHeaFmt_s = glSep_s + '' if not self.fAppTtl_s else f'\n{self.fAppTtl_s}:'
+      self.fHeaFmt_s = glSep_s
+      if self.fAppTtl_s: self.fHeaFmt_s += f'\n{self.fAppTtl_s}:'
     if self.fFooFmt_s is not None: self.fFooFmt_s = str(self.fFooFmt_s)
     else: self.fFooFmt_s = glSep_s[:len(glSep_s)//3 *2]
     
     self.fRunLoop_b = bool(self.fOutMenuItm_d)
+    self.fInP_s, self.fInP_k = None, None
     if self.fActHst_l is not None:
       self.fActHst_l.append((time.time_ns(), 'Inn', '__post_init__', True))
 
@@ -200,27 +202,28 @@ class Menu_c():
       self.fActHst_l.append((time.time_ns(), 'Inn', 'Beg:MainLoop', True))
     while self.fRunLoop_b:
       self.prn_fmp(file=file)
-      li_s = inp_FltAVali_fefi(f' пункт меню', laInPTypeFlt_cll=None,
+      self.fInP_s, self.fInP_k = None, None # ??&| In2__post_init__
+      self.fInP_s = inp_FltAVali_fefi(f' пункт меню', laInPTypeFlt_cll=None,
           file=file)[0].strip()
-      if li_s in self:
-        li_k = li_s
+      if self.fInP_s in self:
+        self.fInP_k = self.fInP_s
       else:
-        try: li_k = int(li_s)
-        except ValueError as le_o: li_k = None
+        try: self.fInP_k = int(self.fInP_s)
+        except ValueError as le_o: self.fInP_k = None
         else:
-          if li_k not in self: li_k = None
-      if li_k is not None:
-        lo_cll = self[li_k][1]
+          if self.fInP_k not in self: self.fInP_k = None
+      if self.fInP_k is not None:
+        lo_cll = self[self.fInP_k][1]
         if lo_cll is None: # 2Do:??AddHst
-          print(f'DVL: None 4 calling Fu() пункт меню({li_k})', file=file)
+          print(f'DVL: None 4 calling Fu() пункт меню({self.fInP_k})', file=file)
           continue
         else:
           loRes_a = lo_cll(self, file=file)
           if self.fActHst_l is not None:
             self.fActHst_l.append((time.time_ns(), 'InP',
-                f'({li_s})' + self[li_k][0], loRes_a))
+                f'({self.fInP_s})' + self[self.fInP_k][0], loRes_a))
       else:
-          print(f'Неверный пункт меню({li_s})', file=file) # 2Do:??AddHst
+          print(f'Неверный пункт меню({self.fInP_s})', file=file) # 2Do:??AddHst
     else:
       if self.fHeaFmt_s != '': print(self.fHeaFmt_s, file=file)
       print('До свидания!', file=file)
