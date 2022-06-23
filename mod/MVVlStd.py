@@ -29,34 +29,37 @@
 
 '''Mod:MVVlStd.py
 Usa:
-from MVVlStd import glSep_s, inp_FltAVali_fefi
+from MVVlStd import glSep_s, mInP_FltAVali_fefi
 import MVVlStd
 import mod.MVVlStd, mod.victory, mod.MyBankAcc
-# MVVlStd.inp_FltAVali_fefi('?')
-# inp_FltAVali_fefi('?')
-  tMenu_o = mod.MVVlStd.Menu_c(tMenu_d, **loKwArg_d)
+# MVVlStd.mInP_FltAVali_fefi('?')
+# mInP_FltAVali_fefi('?')
+  loMenu_o = mod.MVVlStd.mMenu_c(mMenu_d, **loKwArg_d)
 '''
-import sys, time
+from distutils.command.build import build
+import io, sys, time
 from dataclasses import dataclass, field
 from collections.abc import Callable
+from typing import Any, Optional, Protocol, TypeAlias, TypeVar
 
 
-glScrWid_s = 80
-glSep_s = '_' *glScrWid_s
+glScrWid_i = 80
+glSep_s = '_' *glScrWid_i
 
-glStdMsg4InP_l = [' Please, Input', ' and press Enter',
+
+mStdMsg4InP_t = (' Please, Input', ' and press Enter',
     'Your value will be validated as', 'on default ',
     # ' and {} attempt{} left'
     ' and {} attem. left',
-    ' It remains to input {} more val.{}.']
-glStdMsg4InP_l = [' Пожалуйста, введите', ' и нажмите Enter',
+    ' It remains to input {} more val.{}.')
+mStdMsg4InP_t = (' Пожалуйста, введите', ' и нажмите Enter',
     'Ваш ввод должен соответствовать усл.', 'по умолчанию ',
     ' и осталось {} попыт.',
-    ' Нужно ввести еще {} знач.{}.']
-
-def inp_FltAVali_fefi(laWhatInPMsg_s, laInPValues_co=1, laValiInPMsg_s='',
+    ' Нужно ввести еще {} знач.{}.')
+# 2Do:mInP_FltAVali_fefi->_c(...)
+def mInP_FltAVali_fefi(laWhatInPMsg_s, laInPValues_co=1, laValiInPMsg_s='',
     laVali_cll=None, laInPTypeFlt_cll=int, laMaxInPTry_co=11,
-    laAcceptEmptyInPAsDf_b=False, laDfV_s=None, laMsg4InP_l=glStdMsg4InP_l,
+    laAcceptEmptyInPAsDf_b=False, laDfV_s=None, laMsg4InP_l=mStdMsg4InP_t,
     laVerbose_i=None, file=sys.stdout) -> tuple:
 
   if laInPValues_co < 1: raise ValueError(f'laInPValues_co must be > 0, now:{laInPValues_co}')
@@ -71,8 +74,8 @@ def inp_FltAVali_fefi(laWhatInPMsg_s, laInPValues_co=1, laValiInPMsg_s='',
     lo_s += f"({laMsg4InP_l[3]}'{laDfV_s}')"
   loInPMsg_s = f"{lo_s}: "
 
-  for l_co in range(loMaxTry_co):
-    li_s = input(loInPMsg_s)
+  for lo_co in range(loMaxTry_co):
+    li_s = input(loInPMsg_s) # 2Do:try/except EOFError(Enter: ^Z)
     if li_s == '' and laAcceptEmptyInPAsDf_b and laDfV_s is not None:
       li_s = laDfV_s # 2Do: Che: laDfV_s is str OR UpLi
     # if not li_s: ??User(Exit|Bre) ??laAcceptEmpty(As(Df|Bre))InP_b=False
@@ -100,16 +103,16 @@ def inp_FltAVali_fefi(laWhatInPMsg_s, laInPValues_co=1, laValiInPMsg_s='',
     # print(f'DBG: {loRes_l=}')
     if len(loRes_l) == laInPValues_co: break  
     if laMaxInPTry_co:
-      if l_co == (loMaxTry_co -1): # RFa:Rm(NNe int)
+      if lo_co == (loMaxTry_co -1): # RFa:Rm(NNe int)
         if loRes_l:
           print(f"\tWRN: Rich max(laInPValues_co, laMaxInPTry_co):{loMaxTry_co}, return {tuple(loRes_l)} as User input.", file=file)
         else:
           raise ValueError(f'Rich max(laInPValues_co, laMaxInPTry_co):{loMaxTry_co} but loRes_l is Empty - nothing return as User input.')
       else:
-        # lo_s = '' if l_co == (loMaxTry_co -2) else 's'
-        # lo_s = f' and {loMaxTry_co - l_co -1} attempt{lo_s} left'
+        # lo_s = '' if lo_co == (loMaxTry_co -2) else 's'
+        # lo_s = f' and {loMaxTry_co - lo_co -1} attempt{lo_s} left'
         if laMsg4InP_l[-2]:
-          lo_s = laMsg4InP_l[-2].format(loMaxTry_co - l_co -1)
+          lo_s = laMsg4InP_l[-2].format(loMaxTry_co - lo_co -1)
         else: lo_s = ''
     else: lo_s = '' #RFa:Rm:NNe(.rstrip('.'))
     if laMsg4InP_l[-1]:
@@ -118,12 +121,12 @@ def inp_FltAVali_fefi(laWhatInPMsg_s, laInPValues_co=1, laValiInPMsg_s='',
     # print(f'MSG: It remains to input {laInPValues_co - len(loRes_l)} more value{lo_s}.', file=file)
   return tuple(loRes_l)
 
-# print(mod.MVVlStd.inp_FltAVali_fefi(laWhatInPMsg_s=' Any Float', laInPValues_co=2, laInPTypeFlt_cll=float, laMaxInPTry_co=1),
-#  mod.MVVlStd.inp_FltAVali_fefi(' x', laValiInPMsg_s='x in (1,2,3)',
+# print(mod.MVVlStd.mInP_FltAVali_fefi(laWhatInPMsg_s=' Any Float', laInPValues_co=2, laInPTypeFlt_cll=float, laMaxInPTry_co=1),
+#  mod.MVVlStd.mInP_FltAVali_fefi(' x', laValiInPMsg_s='x in (1,2,3)',
 #   laVali_cll=lambda x: x in (1,2,3))
 #   )
-# print(inp_FltAVali_fefi(laInPValues_co=2, laInPTypeFlt_cll=float, laMaxInPTry_co=1),
-#  inp_FltAVali_fefi(laValiWhatInPMsg_s=tCndInPMsg_s,
+# print(mInP_FltAVali_fefi(laInPValues_co=2, laInPTypeFlt_cll=float, laMaxInPTry_co=1),
+#  mInP_FltAVali_fefi(laValiWhatInPMsg_s=tCndInPMsg_s,
 #   laVali_cll=lambda x: x in tValiV_t)
 #   )
 # t_s = '' if tOk_co == 1 else 's'
@@ -131,7 +134,7 @@ def inp_FltAVali_fefi(laWhatInPMsg_s, laInPValues_co=1, laValiInPMsg_s='',
 
 # tTime_co, tPtt_i, tOk_co, tFls_co = 10, 5, 0, 0
 
-# tResLLen_co = int(inp_FltAVali_fefi(laVali_cll=lambda _i: 0 < _i < 10,
+# tResLLen_co = int(mInP_FltAVali_fefi(laVali_cll=lambda _i: 0 < _i < 10,
 #     laWhatInPMsg_s=' Количество элементов будущего списка',
 #     laValiInPMsg_s=' a Integer 0 < _i < 10')[0],
 #     )
@@ -139,34 +142,58 @@ def inp_FltAVali_fefi(laWhatInPMsg_s, laInPValues_co=1, laValiInPMsg_s='',
 # tValiV_t = tuple(range(0, 10))
 # tValiV_t = ('Y', 'N')
 # tCndInPMsg_s = f' (по очереди по одной вводите любые цифры) a Integer OneOf{tValiV_t}'
-# tRes_l = list(inp_FltAVali_fefi(f' по очереди по одной любые цифры {tResLLen_co} раза',
+# tRes_l = list(mInP_FltAVali_fefi(f' по очереди по одной любые цифры {tResLLen_co} раза',
 #     laInPValues_co=tResLLen_co, laValiInPMsg_s=f'a Integer OneOf{tValiV_t}',
 #     laVali_cll=lambda x: x in tValiV_t))
 # tValiV_t = ('Y', 'N')
-# tRes_l = list(inp_FltAVali_fefi(f' Ts 2 times',
+# tRes_l = list(mInP_FltAVali_fefi(f' Ts 2 times',
 #     laInPValues_co=2, laInPTypeFlt_cll=None, laDfV_s='Y',
 #     laAcceptEmptyInPAsDf_b=True, laValiInPMsg_s=f'a character OneOf{tValiV_t}',
 #     laVali_cll=lambda _s: _s.upper() in tValiV_t))
 # tRes_l.sort()
 # print(tRes_l)
+mT_ca = TypeVar("mT_ca")
+mT_contra_ca = TypeVar("mT_contra_ca", contravariant=True)
+mSelf_ca = TypeVar("mSelf_ca")
+# mIntOStr_ca = TypeVar("mIntOStr_ca", int, str)
 
+class mSupportsWrite_ca(Protocol[mT_contra_ca]):
+    def write(self, __s: mT_contra_ca) -> object: ...
+
+class mSupportsDunderLT_ca(Protocol):
+    def __lt__(self, __other: Any) -> bool: ...
+class mSupportsDunderGT_ca(Protocol):
+    def __gt__(self, __other: Any) -> bool: ...
+mSupportsRichComparison_ca: TypeAlias = mSupportsDunderLT_ca | mSupportsDunderGT_ca
+
+mMenu_ca = TypeVar("mMenu_ca", bound="mMenu_c")
+# mItmV_ca = TypeVar("mItmV_ca", list[str, Callable[[mMenu_ca, mSupportsWrite_ca | None], list],
+#     Optional(Any)])
 @dataclass
-class Menu_c():
-
-  fOutMenuItm_d: dict = field(default_factory=dict)
-  # ItmFmt(_k=Key, _v=[Desc_s, _cll, ??ElType_en:(AlwOut_b, SvHst_b...)])
+class mMenu_c():
+  '''Class menu 
+  '''
+  fMenuItm_d: dict[int | str, list[
+      tuple[str,
+            Callable[[mMenu_ca, mSupportsWrite_ca], list],
+            #  Callable[[mMenu_ca, mSupportsWrite_ca | None], list],
+            # Optional(Any)]]] = field(default_factory=dict)
+            Any | None]]]
+  # ItmFmt(_k=Key, _v=[Desc_s, _cll, ??Aliases, ??ElType_en:(AlwOut_b, SvHst_b...)])
   # 2Do: ??Add(??fCaseInsens_b, ...)
   fAppTtl_s: str = ''
-  fPrnOutStt_cll: Callable[[object, object], None] = None # OutVar # [self, file]; ??(Slv:NN)Df: IF fOutStt_d is !None -> print(fOutStt_d)
-  fIterSortKey_cll: Callable[[object], 'SupportsRichComparison'] = None # [key] ??(Prop4Set): AsIn2fOutMenuItm_d OR (lambda _el: str(_el))|int
+  fPrnOutStt_cll: Callable[[mMenu_ca, mSupportsWrite_ca], None] = None # OutVar # [self, file]; ??(Slv:NN)Df: IF fOutStt_d is !None -> print(fOutStt_d)
+  # fPrnOutStt_cll: Callable[[mSelf_ca, mSupportsWrite_ca], None] = None # OutVar # [self, file]; ??(Slv:NN)Df: IF fOutStt_d is !None -> print(fOutStt_d)
+  # fPrnOutStt_cll: Callable[[mMenu_ca, mSupportsWrite_ca | None], None] = None # OutVar # [self, file]; ??(Slv:NN)Df: IF fOutStt_d is !None -> print(fOutStt_d)
+  fIterSortKey_cll: Callable[[mT_ca], mSupportsRichComparison_ca] = None # [key] ??(Prop4Set): AsIn2fOutMenuItm_d OR (lambda _el: str(_el))|int
   fHeaFmt_s: str = None
   fFooFmt_s: str = None
   fItmFmt_s: str = '{_k!s:>2}. {_v[0]}'
-  fActHst_l: list = field(default_factory=list)
+  fActHst_l: list[tuple[float, str, str, list]] = field(default_factory=list)
   # ElFmt:tuple(<time.time_ns()>, <Type_s>, <Desc_s|Cnt_a??>, <Ret_a>)
   # 2Do: SvHst_b, MaB:Get(Fr:fActHst_l):Ls(Ret_a)
   # 2Do: PP(Max(Col|Row)) 4 prn_fmp
-  fAFile4Prn_o: object = sys.stdout
+  fAFile4Prn_o: mSupportsWrite_ca = sys.stdout
 
   def __post_init__(self):
     if self.fHeaFmt_s is not None: self.fHeaFmt_s = str(self.fHeaFmt_s)
@@ -176,29 +203,29 @@ class Menu_c():
     if self.fFooFmt_s is not None: self.fFooFmt_s = str(self.fFooFmt_s)
     else: self.fFooFmt_s = glSep_s[:len(glSep_s)//3 *2]
     
-    self.fRunLoop_b = bool(self.fOutMenuItm_d)
+    self.fRunLoop_b = bool(self.fMenuItm_d)
     self.fInP_s, self.fInP_k = None, None
     if self.fActHst_l is not None:
       self.fActHst_l.append((time.time_ns(), 'Inn', '__post_init__', None))
 
   def __iter__(self): # 2Do: MaB Onl WhiUse(prn_fmp)
     if self.fIterSortKey_cll is None:
-      return (_k for _k in self.fOutMenuItm_d.keys())
-    return (_k for _k in sorted(self.fOutMenuItm_d.keys(), key=self.fIterSortKey_cll))
+      return (_k for _k in self.fMenuItm_d.keys())
+    return (_k for _k in sorted(self.fMenuItm_d.keys(), key=self.fIterSortKey_cll))
 
   def __getitem__(self, key): # BOf:KISS
-    return self.fOutMenuItm_d[key]
+    return self.fMenuItm_d[key]
 
   def __len__(self): # BOf:KISS
-    return len(self.fOutMenuItm_d)
+    return len(self.fMenuItm_d)
 
   def __contains__(self, key): # BOf:KISS
-    return key in self.fOutMenuItm_d
+    return key in self.fMenuItm_d
 
   # 2Do: MaB: oup_fmp(self, file=fAFile4Prn_o)
   # 2Do: MaB Onl(9+KeyExit OR Fit2Scr+KeyExit) w/Set(sf.WhiVieItmKey_l)
   def prn_fmp(self, file=fAFile4Prn_o):
-    if bool(self.fOutMenuItm_d):
+    if bool(self.fMenuItm_d):
       if self.fHeaFmt_s != '': print(self.fHeaFmt_s, file=file)
       print(*(self.fItmFmt_s.format(_k=_k, _v=self[_k]) for _k in self),
           sep='\n', file=file)
@@ -218,7 +245,7 @@ class Menu_c():
     while self.fRunLoop_b:
       self.prn_fmp(file=file)
       self.fInP_s, self.fInP_k = None, None # ??&| In2__post_init__
-      self.fInP_s = inp_FltAVali_fefi(f' пункт меню', laInPTypeFlt_cll=None,
+      self.fInP_s = mInP_FltAVali_fefi(f' пункт меню', laInPTypeFlt_cll=None,
           file=file)[0].strip() # 2Do:try/except EOFError(Enter: ^Z)
       if self.fInP_s in self:
         self.fInP_k = self.fInP_s
@@ -247,3 +274,5 @@ class Menu_c():
       if self.fFooFmt_s != '': print(self.fFooFmt_s, file=file)
 
     return self.fActHst_l
+
+# mMenu_c()
