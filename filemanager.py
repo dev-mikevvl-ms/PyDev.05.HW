@@ -134,7 +134,7 @@ def main(laArgs: list[str], *laArg_l, **laKwArg_d) -> dict:
   # mod.victory.main(None)
   # tRes_d = mod.MyBankAcc.main(None, fAFile4Prn_o=sys.stdout)
   tRes_d = tMenu_o()
-  print(tRes_d)
+  print(tRes_d) #DVL
   return tRes_d
   # t_l = mod.MVVlStd.glStdMsg4InP_l[:]
   # t_l[0] = 'Выберите'

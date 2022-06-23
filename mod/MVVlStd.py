@@ -49,10 +49,12 @@ glStdMsg4InP_l = [' Пожалуйста, введите', ' и нажмите E
     'Ваш ввод должен соответствовать усл.', 'по умолчанию ',
     ' и осталось {} попыт.',
     ' Нужно ввести еще {} знач.{}.']
+
 def inp_FltAVali_fefi(laWhatInPMsg_s, laInPValues_co=1, laValiInPMsg_s='',
     laVali_cll=None, laInPTypeFlt_cll=int, laMaxInPTry_co=11,
     laAcceptEmptyInPAsDf_b=False, laDfV_s=None, laMsg4InP_l=glStdMsg4InP_l,
     laVerbose_i=None, file=sys.stdout) -> tuple:
+
   if laInPValues_co < 1: raise ValueError(f'laInPValues_co must be > 0, now:{laInPValues_co}')
   loTypeAValiFlsCo_l, loRes_l, loMaxTry_co = [0, 0], [], int(max(laInPValues_co, laMaxInPTry_co))
   if laValiInPMsg_s and laVali_cll:
@@ -64,6 +66,7 @@ def inp_FltAVali_fefi(laWhatInPMsg_s, laInPValues_co=1, laValiInPMsg_s='',
   if laAcceptEmptyInPAsDf_b and laDfV_s is not None:
     lo_s += f"({laMsg4InP_l[3]}'{laDfV_s}')"
   loInPMsg_s = f"{lo_s}: "
+
   for l_co in range(loMaxTry_co):
     li_s = input(loInPMsg_s)
     if li_s == '' and laAcceptEmptyInPAsDf_b and laDfV_s is not None:
@@ -93,7 +96,7 @@ def inp_FltAVali_fefi(laWhatInPMsg_s, laInPValues_co=1, laValiInPMsg_s='',
     # print(f'DBG: {loRes_l=}')
     if len(loRes_l) == laInPValues_co: break  
     if laMaxInPTry_co:
-      if l_co == int(loMaxTry_co -1):
+      if l_co == (loMaxTry_co -1): # RFa:Rm(NNe int)
         if loRes_l:
           print(f"\tWRN: Rich max(laInPValues_co, laMaxInPTry_co):{loMaxTry_co}, return {tuple(loRes_l)} as User input.", file=file)
         else:
@@ -104,12 +107,17 @@ def inp_FltAVali_fefi(laWhatInPMsg_s, laInPValues_co=1, laValiInPMsg_s='',
         if laMsg4InP_l[-2]:
           lo_s = laMsg4InP_l[-2].format(loMaxTry_co - l_co -1)
         else: lo_s = ''
-    else: lo_s = ''.rstrip('.')
+    else: lo_s = '' #RFa:Rm:NNe(.rstrip('.'))
     if laMsg4InP_l[-1]:
       lo_s = laMsg4InP_l[-1].format(laInPValues_co - len(loRes_l), lo_s)
       print(lo_s.rstrip('.') + '.', file=file)
     # print(f'MSG: It remains to input {laInPValues_co - len(loRes_l)} more value{lo_s}.', file=file)
   return tuple(loRes_l)
+
+# print(mod.MVVlStd.inp_FltAVali_fefi(laWhatInPMsg_s=' Any Float', laInPValues_co=2, laInPTypeFlt_cll=float, laMaxInPTry_co=1),
+#  mod.MVVlStd.inp_FltAVali_fefi(' x', laValiInPMsg_s='x in (1,2,3)',
+#   laVali_cll=lambda x: x in (1,2,3))
+#   )
 # print(inp_FltAVali_fefi(laInPValues_co=2, laInPTypeFlt_cll=float, laMaxInPTry_co=1),
 #  inp_FltAVali_fefi(laValiWhatInPMsg_s=tCndInPMsg_s,
 #   laVali_cll=lambda x: x in tValiV_t)
@@ -150,6 +158,7 @@ class Menu_c():
   fFooFmt_s: str = None
   fItmFmt_s: str = '{_k!s:>2}. {_v[0]}'
   fActHst_l: list = field(default_factory=list)
+  # Fmt:
   # 2Do: PP(Max(Col|Row)) 4 prn_fmp
   fAFile4Prn_o: object = sys.stdout
 
@@ -164,7 +173,7 @@ class Menu_c():
     self.fRunLoop_b = bool(self.fOutMenuItm_d)
     self.fInP_s, self.fInP_k = None, None
     if self.fActHst_l is not None:
-      self.fActHst_l.append((time.time_ns(), 'Inn', '__post_init__', True))
+      self.fActHst_l.append((time.time_ns(), 'Inn', '__post_init__', None))
 
   def __iter__(self): # 2Do: MaB Onl WhiUse(prn_fmp)
     if self.fIterSortKey_cll is None:
@@ -192,14 +201,14 @@ class Menu_c():
 
   # 2Do: __str__(self), __format__, tVieHst_fmp
   def prn_Info_fmp(self, file=fAFile4Prn_o):
-    if self.fPrnOutStt_cll and callable(self.fPrnOutStt_cll):
+    if callable(self.fPrnOutStt_cll): #  #RFa:Rm:NNe(self.fPrnOutStt_cll and )
       self.fPrnOutStt_cll(self, file=file)
 
   # 2Do: add_Itms?_ffm(self), del_Itms?_ffpm(self), def get_Keys?_ffpm(self):
   # ??run_ffpm(self):
   def __call__(self, file=fAFile4Prn_o): # MainLoop
     if self.fActHst_l is not None:
-      self.fActHst_l.append((time.time_ns(), 'Inn', 'Beg:MainLoop', True))
+      self.fActHst_l.append((time.time_ns(), 'Inn', 'Beg:MainLoop', None))
     while self.fRunLoop_b:
       self.prn_fmp(file=file)
       self.fInP_s, self.fInP_k = None, None # ??&| In2__post_init__
@@ -214,21 +223,21 @@ class Menu_c():
           if self.fInP_k not in self: self.fInP_k = None
       if self.fInP_k is not None:
         lo_cll = self[self.fInP_k][1]
-        if lo_cll is None: # 2Do:??AddHst
-          print(f'DVL: None 4 calling Fu() пункт меню({self.fInP_k})', file=file)
-          continue
-        else:
+        if callable(lo_cll):
           loRes_a = lo_cll(self, file=file)
           if self.fActHst_l is not None:
             self.fActHst_l.append((time.time_ns(), 'InP',
                 f'({self.fInP_s})' + self[self.fInP_k][0], loRes_a))
+        else: # 2Do:??AddHst
+          print(f'DVL: None 4 calling Fu() пункт меню({self.fInP_k})', file=file)
+          continue
       else:
-          print(f'Неверный пункт меню({self.fInP_s})', file=file) # 2Do:??AddHst
+          print(f'MSG: Неверный пункт меню({self.fInP_s})', file=file) # 2Do:??AddHst
     else:
       if self.fHeaFmt_s != '': print(self.fHeaFmt_s, file=file)
       print('До свидания!', file=file)
       if self.fActHst_l is not None:
-        self.fActHst_l.append((time.time_ns(), 'Inn', 'End:MainLoop', True))
+        self.fActHst_l.append((time.time_ns(), 'Inn', 'End:MainLoop', None))
       if self.fFooFmt_s != '': print(self.fFooFmt_s, file=file)
 
     return self.fActHst_l
