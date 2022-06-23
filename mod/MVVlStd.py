@@ -27,15 +27,19 @@
 
 # See:(https://opensource.org/licenses/BSD-3-Clause).
 
-# Mod:MVVlStd.py
-# Usa:
-# from MVVlStd import glSep_s, inp_FltAVali_fefi
-# import MVVlStd
-# # MVVlStd.inp_FltAVali_fefi('?')
-# # inp_FltAVali_fefi('?')
-import copy, sys, time
+'''Mod:MVVlStd.py
+Usa:
+from MVVlStd import glSep_s, inp_FltAVali_fefi
+import MVVlStd
+import mod.MVVlStd, mod.victory, mod.MyBankAcc
+# MVVlStd.inp_FltAVali_fefi('?')
+# inp_FltAVali_fefi('?')
+  tMenu_o = mod.MVVlStd.Menu_c(tMenu_d, **loKwArg_d)
+'''
+import sys, time
 from dataclasses import dataclass, field
 from collections.abc import Callable
+
 
 glScrWid_s = 80
 glSep_s = '_' *glScrWid_s
@@ -149,16 +153,18 @@ def inp_FltAVali_fefi(laWhatInPMsg_s, laInPValues_co=1, laValiInPMsg_s='',
 @dataclass
 class Menu_c():
 
-  fOutMenuItm_d: dict = field(default_factory=dict) # OutVar: ItmFmt(_k=Key, _v=[Desc_s, _cll, ??Type_en:(AlwOut, ...)])
-  # fOutStt_d: dict = None # OutVar
+  fOutMenuItm_d: dict = field(default_factory=dict)
+  # ItmFmt(_k=Key, _v=[Desc_s, _cll, ??ElType_en:(AlwOut_b, SvHst_b...)])
+  # 2Do: ??Add(??fCaseInsens_b, ...)
   fAppTtl_s: str = ''
-  fPrnOutStt_cll: Callable = None # OutVar # [self, file]; ??(Slv:NN)Df: IF fOutStt_d is !None -> print(fOutStt_d)
-  fIterSortKey_cll: Callable = None # [key] ??(Prop4Set): AsIn2fOutMenuItm_d OR (lambda _el: str(_el))|int
+  fPrnOutStt_cll: Callable[[object, object], None] = None # OutVar # [self, file]; ??(Slv:NN)Df: IF fOutStt_d is !None -> print(fOutStt_d)
+  fIterSortKey_cll: Callable[[object], 'SupportsRichComparison'] = None # [key] ??(Prop4Set): AsIn2fOutMenuItm_d OR (lambda _el: str(_el))|int
   fHeaFmt_s: str = None
   fFooFmt_s: str = None
   fItmFmt_s: str = '{_k!s:>2}. {_v[0]}'
   fActHst_l: list = field(default_factory=list)
-  # Fmt:
+  # ElFmt:tuple(<time.time_ns()>, <Type_s>, <Desc_s|Cnt_a??>, <Ret_a>)
+  # 2Do: SvHst_b, MaB:Get(Fr:fActHst_l):Ls(Ret_a)
   # 2Do: PP(Max(Col|Row)) 4 prn_fmp
   fAFile4Prn_o: object = sys.stdout
 
@@ -213,7 +219,7 @@ class Menu_c():
       self.prn_fmp(file=file)
       self.fInP_s, self.fInP_k = None, None # ??&| In2__post_init__
       self.fInP_s = inp_FltAVali_fefi(f' пункт меню', laInPTypeFlt_cll=None,
-          file=file)[0].strip()
+          file=file)[0].strip() # 2Do:try/except EOFError(Enter: ^Z)
       if self.fInP_s in self:
         self.fInP_k = self.fInP_s
       else:
