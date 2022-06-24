@@ -83,7 +83,7 @@ def mInP_FltAVali_fefi(laWhatInPMsg_s, laInPValues_co=1, laValiInPMsg_s='',
       if laInPTypeFlt_cll is not None:
         liChe_i = laInPTypeFlt_cll(li_s)
       else: liChe_i = li_s
-    except ValueError as leExc_o:
+    except ValueError as loExc_o:
       loTypeAValiFlsCo_l[0] +=1; liChe_i = None
       print(f"\tERR: You input:'{li_s}' NOT pass check type w/func({laInPTypeFlt_cll}",
           f'- Exception:{type(leExc_o).__name__}({leExc_o}) raised.', file=file)
@@ -245,13 +245,20 @@ class mMenu_c():
     while self.fRunLoop_b:
       self.prn_fmp(file=file)
       self.fInP_s, self.fInP_k = None, None # ??&| In2__post_init__
-      self.fInP_s = mInP_FltAVali_fefi(f' пункт меню', laInPTypeFlt_cll=None,
-          file=file)[0].strip() # 2Do:try/except EOFError(Enter: ^Z)
+      try:
+        self.fInP_s = mInP_FltAVali_fefi(f' пункт меню',
+            laInPTypeFlt_cll=None, file=file)[0].strip() # 2Do:try/except EOFError(Enter: ^Z)
+      except EOFError as loExc_o:
+        print(f'DVL:EOFError(Enter: ^Z):({loExc_o}).', file=file)
+        self.fActHst_l.append((time.time_ns(), 'Inn',
+            'End:MainLoop:BOf:EOFError(MaB:Enter: ^Z)', False))
+        self.fRunLoop_b = False
+        break
       if self.fInP_s in self:
         self.fInP_k = self.fInP_s
       else:
         try: self.fInP_k = int(self.fInP_s)
-        except ValueError as le_o: self.fInP_k = None
+        except ValueError as loExc_o: self.fInP_k = None
         else:
           if self.fInP_k not in self: self.fInP_k = None
       if self.fInP_k is not None:

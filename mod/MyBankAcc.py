@@ -97,7 +97,7 @@ def main(laArgs: list[str], *laArg_l, **laKwArg_d) -> dict:
   # loRes_o = loMenu_o.run_ffpm()
   loRes_o = loMenu_o()
   # loRes_o = mMenu_c(...)()
-  print(loRes_o) #DVL
+  print(f'DVL:loRes_o:', *loRes_o, '', sep='\n') #DVL
   return loRes_o
   
 

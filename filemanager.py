@@ -18,7 +18,9 @@
 Так же можно добавить любой дополнительный функционал по желанию.
 """
 import copy, os, shutil, sys
-import mod.MVVlStd, mod.victory, mod.MyBankAcc
+
+from mod.MVVlStd import glSep_s, mInP_FltAVali_fefi, mMenu_c, mSupportsWrite_ca
+import mod.victory, mod.MyBankAcc
 
 # import os
 # os.makedirs(name, mode=511, exist_ok=False)
@@ -44,21 +46,24 @@ mAlpha_l = [ 'Просмотр информации об операционно�
  'Смена рабочей директории', 'Выход']
 # t_d = dict(**dict((str(_i), [_s, None]) for _i, _s in enumerate(mDig_l, 1)),
 #     **dict((_s1, [_s, None]) for _s1, _s in zip('ИЯВБСЫ', mAlpha_l)))
-mMenu_l = list((str(_i), [_s, None]) for _i, _s in enumerate(mDig_l, 1))
-mMenu_d = dict(list((str(_i), [_s, None]) for _i, _s in enumerate(mDig_l, 1))
-             + list((_s1, [_s, None]) for _s1, _s in zip('ИЯВБСЫ', mAlpha_l)))
+# mMenu_l = list((str(_i), [_s, None]) for _i, _s in enumerate(mDig_l, 1))
+# mMainMenu_d = dict(list((str(_i), [_s, None]) for _i, _s in enumerate(mDig_l, 1))
+#              + list((_s1, [_s, None]) for _s1, _s in zip('ИЯВБСЫ', mAlpha_l)))
  
 mStt_d = dict(kRtDir_s=None, kCurRelDir_s=None, kDirEntry_t=None)
 
-def mFll_Stt_ff(laDir_s=None, laSortKey_cll=lambda _el: _el.name.upper()) -> bool:
+def mCheAFll_Stt_ffb(laDir_s=None, laSortKey_cll=lambda _el: _el.name.upper(),
+                     laChe_b:bool=False) -> bool:
   if laDir_s is None: laDir_s = os.curdir # Init|RScan
   
   if mStt_d['kRtDir_s'] is None: loDir_s = os.path.realpath(laDir_s)
   else:
     loDir_s = os.path.realpath(os.path.join(mStt_d['kRtDir_s'], mStt_d['kCurRelDir_s'], laDir_s))
-    loCommPrx_s = os.path.commonpath((mStt_d['kRtDir_s'], loDir_s)) # 2Do Cch:ValueError
-    if loCommPrx_s != mStt_d['kRtDir_s']: # Sec: loDir_s is not SbDir(mStt_d['kRtDir_s'])
-      return False
+    if laChe_b:
+      loCommPrx_s = os.path.commonpath((mStt_d['kRtDir_s'], loDir_s)) # 2Do Cch:ValueError
+      if loCommPrx_s != mStt_d['kRtDir_s']: # Sec: loDir_s is not SbDir(mStt_d['kRtDir_s'])
+        print("DVL:loDir_s is not SbDir(mStt_d['kRtDir_s'])")
+        return False
   
   # if os.path.exists(loDir_s) and os.path.isdir(loDir_s): # Dlg(scandir)
   if laSortKey_cll is None:
@@ -75,32 +80,33 @@ def mFll_Stt_ff(laDir_s=None, laSortKey_cll=lambda _el: _el.name.upper()) -> boo
 
 # InPHstEl:(fCurDirL_ix, fInP_s, fDesc_s, fRes_a)
 
-def mA_Exit_fm(laSf_o:mod.MVVlStd.mMenu_ca,
-    file:mod.MVVlStd.mSupportsWrite_ca=sys.stdout):
+def mA_Exit_fm(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
   laSf_o.fRunLoop_b = False
 
-def mA_SysInfo_ffmp(laSf_o:mod.MVVlStd.mMenu_ca,
-    file:mod.MVVlStd.mSupportsWrite_ca=sys.stdout):
+
+# InfoMenuItems
+def mA_SysInfo_ffmp(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
   loMsg_s = f"{sys.platform=}\n{sys.version=}\n{sys.api_version=}."
   print(loMsg_s, file=file)
   return loMsg_s
-def mA_MyInfo_ffmp(laSf_o:mod.MVVlStd.mMenu_ca, file:mod.MVVlStd.mSupportsWrite_ca=sys.stdout):
+def mA_MyInfo_ffmp(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
   loMsg_s = "Creator/Author: Mike Vl. Vlasov <dev.mikevvl@outlook.com>."
   print(loMsg_s, file=file)
   return loMsg_s
 
-def mA_victory_ffmp(laSf_o:mod.MVVlStd.mMenu_ca, file:mod.MVVlStd.mSupportsWrite_ca=sys.stdout):
+# OutModItm
+def mA_victory_ffmp(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
   return mod.victory.main(None)
-def mA_MyBankAcc_ffmp(laSf_o:mod.MVVlStd.mMenu_ca, file:mod.MVVlStd.mSupportsWrite_ca=sys.stdout):
+def mA_MyBankAcc_ffmp(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
   return mod.MyBankAcc.main(None, fAFile4Prn_o=file)
 
-# def mA_VieHst_ffmp(laSf_o, file:mod.MVVlStd.mSupportsWrite_ca=sys.stdout):
+# def mA_VieHst_ffmp(laSf_o, file:mSupportsWrite_ca=sys.stdout):
 #   print(f"История покупок (всего {len(laSf_o.fOutStt_d['kBuyHstT_l'])} зап.):",
 #       *enumerate(laSf_o.fOutStt_d['kBuyHstT_l'], 1), '', sep='\n', file=file)
 #   return (laSf_o.fOutStt_d['kAccSum_n'], len(laSf_o.fOutStt_d['kBuyHstT_l']))
 #   laSf_o.fInP_s, laSf_o.fInP_k
 
-mMenu_d = {'1': ('Создать файл', None, None),
+mMainMenu_d = {'1': ('Создать файл', None, None),
  '2': ('Создать папку', None),
  '3': ('Удалить файл', None),
  '4': ('Удалить папку', None),
@@ -116,37 +122,43 @@ mMenu_d = {'1': ('Создать файл', None, None),
  'Я': ('Создатель программы', mA_MyInfo_ffmp, None),
  'Ы': ('Выход', mA_Exit_fm)}
 
-def mOuP_Stt_fmp(laSf_o:mod.MVVlStd.mMenu_c,
-    file:mod.MVVlStd.mSupportsWrite_ca=sys.stdout):
+def mOuP_Stt_fmp(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
   loNone_b = mStt_d['kDirEntry_t'] is None
   lo_s = f"kDirEntry_t=None" if loNone_b else f"{len(mStt_d['kDirEntry_t'])=}"
   print(f"kRtDir_s={mStt_d['kRtDir_s']}, kCurRelDir_s={mStt_d['kCurRelDir_s']}",
       lo_s, sep=', ', file=file)
 
-def main(laArgs: list[str], *laArg_l, **laKwArg_d) -> dict:
+def main(laArgV_l: list[str], *laArg_l, **laKwArg_d) -> dict:
   ''' Arg laKMenuCrePP_d=dict(BasePP 4 Cre All Menu In2(Sf))
   '''
-  # Ww:laArgs(sys.argv[1:])
+  # Ww:laArgV_l(sys.argv[1:])
+  # mCheAFll_Stt_ffb()
+  mOuP_Stt_fmp(None)
+  if len(laArgV_l) == 0: loRes_b = mCheAFll_Stt_ffb()
+  # elif len(laArgV_l) == 1:  mCheAFll_Stt_ffb(laArgV_l[0])
+  else: loRes_b = mCheAFll_Stt_ffb(laArgV_l[0])
+  print(f'DVL:{loRes_b=}')
+  mOuP_Stt_fmp(None)
   if 'laKMenuCrePP_d' in laKwArg_d:
     loKwArg_d = copy.deepcopy(dict(laKwArg_d['laKMenuCrePP_d']))
   else: loKwArg_d = {}
   loAppDesc_s = 'Консольный файловый менеджер'
   loKwArg_d.update(dict(fPrnOutStt_cll=mOuP_Stt_fmp,
       fAppTtl_s=loAppDesc_s))
-  loMenu_o = mod.MVVlStd.mMenu_c(mMenu_d, **loKwArg_d)
+  loMainMenu_o = mMenu_c(mMainMenu_d, **loKwArg_d)
   # mod.victory.main(None)
   # loRes_o = mod.MyBankAcc.main(None, fAFile4Prn_o=sys.stdout)
-  loRes_o = loMenu_o()
-  print(loRes_o) #DVL
+  loRes_o = loMainMenu_o()
+  print(f'DVL:loRes_o:', *loRes_o, '', sep='\n') #DVL
   return loRes_o
-  # t_l = mod.MVVlStd.glStdMsg4InP_l[:]
+  # t_l = glStdMsg4InP_l[:]
   # t_l[0] = 'Выберите'
-  # print(t_l[0], mod.MVVlStd.glStdMsg4InP_l[0])
-  # print(mod.MVVlStd.mInP_FltAVali_fefi(' пункт меню'))
+  # print(t_l[0], glStdMsg4InP_l[0])
+  # print(mInP_FltAVali_fefi(' пункт меню'))
 
 if __name__ == '__main__':
     # import sys
-    # main(sys.argv[1:])
+    main(sys.argv[1:])
     # print(sys.executable, *sys.argv, sep='\n')
     # print('', *sys.orig_argv, sep='\n')
-    main(None)
+    # main(None)
