@@ -86,7 +86,7 @@ def mInP_FltAVali_fefi(laWhatInPMsg_s, laInPValues_co=1, laValiInPMsg_s='',
     except ValueError as loExc_o:
       loTypeAValiFlsCo_l[0] +=1; liChe_i = None
       print(f"\tERR: You input:'{li_s}' NOT pass check type w/func({laInPTypeFlt_cll}",
-          f'- Exception:{type(leExc_o).__name__}({leExc_o}) raised.', file=file)
+          f'- Exception:{type(loExc_o).__name__}({loExc_o}) raised.', file=file)
     else:
       if laVali_cll is not None:
         if laVali_cll(liChe_i):
@@ -247,7 +247,7 @@ class mMenu_c():
       self.fInP_s, self.fInP_k = None, None # ??&| In2__post_init__
       try:
         self.fInP_s = mInP_FltAVali_fefi(f' пункт меню',
-            laInPTypeFlt_cll=None, file=file)[0].strip() # 2Do:try/except EOFError(Enter: ^Z)
+            laInPTypeFlt_cll=None, file=file)[0].strip()
       except EOFError as loExc_o:
         print(f'DVL:EOFError(Enter: ^Z):({loExc_o}).', file=file)
         self.fActHst_l.append((time.time_ns(), 'Inn',
