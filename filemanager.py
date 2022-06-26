@@ -18,6 +18,7 @@
 Так же можно добавить любой дополнительный функционал по желанию.
 """
 import copy, os, shutil, sys
+import itertools as itts
 
 from mod.MVVlStd import glSep_s, mInP_FltAVali_fefi, mMenu_c, mSupportsWrite_ca
 import mod.victory, mod.MyBankAcc
@@ -38,12 +39,12 @@ import mod.victory, mod.MyBankAcc
 # os.fwalk(top='.', topdown=True, onerror=None, *, follow_symlinks=False, dir_fd=None)
 # os.dup(fd); os.dup2(fd, fd2, inheritable=True)
 
-mDig_l = ['Создать файл', 'Создать папку', 'Удалить файл', 'Удалить папку',
- 'Копировать файл', 'Копировать папку', 'Про1смотр содержимого рабочей директории',
- 'Посмотреть только папки', 'Посмотреть только файлы']
-mAlpha_l = [ 'Просмотр информации об операционной системе',
- 'Создатель программы', 'Играть в викторину', 'Мой банковский счет',
- 'Смена рабочей директории', 'Выход']
+# mDig_l = ['Создать файл', 'Создать папку', 'Удалить файл', 'Удалить папку',
+#  'Копировать файл', 'Копировать папку', 'Про1смотр содержимого рабочей директории',
+#  'Посмотреть только папки', 'Посмотреть только файлы']
+# mAlpha_l = [ 'Просмотр информации об операционной системе',
+#  'Создатель программы', 'Играть в викторину', 'Мой банковский счет',
+#  'Смена рабочей директории', 'Выход']
 # t_d = dict(**dict((str(_i), [_s, None]) for _i, _s in enumerate(mDig_l, 1)),
 #     **dict((_s1, [_s, None]) for _s1, _s in zip('ИЯВБСЫ', mAlpha_l)))
 # mMenu_l = list((str(_i), [_s, None]) for _i, _s in enumerate(mDig_l, 1))
@@ -78,7 +79,7 @@ mAlpha_l = [ 'Просмотр информации об операционно�
 #   return True
 #   # else: return False
 
-mStt_d = dict(kStkDir_l=[], kDirEntry_t=None, kTSumT_t=None)
+mStt_d = dict(kStkDir_l=[], kDirEntry_t=None, kTSum_t=None)
 # mStt_d = dict(kStkDir_llist[str]=[], kDirEntry_t:tuple[os.DirEntry]=None)
 
 def mFll_Stt_fe(laNewDir_s=None, laSortKey_cll=lambda _el: _el.name.upper(),
@@ -96,7 +97,7 @@ def mFll_Stt_fe(laNewDir_s=None, laSortKey_cll=lambda _el: _el.name.upper(),
     laScan_b = laScan_b or True
   else: pass # SameDir
 
-  if laScan_b or mStt_d['kDirEntry_t'] is None or mStt_d['kTSumT_t'] is None:
+  if laScan_b or mStt_d['kDirEntry_t'] is None or mStt_d['kTSum_t'] is None:
     # print(f'DVL:{laScan_b=}')
     if callable(laSortKey_cll):
       mStt_d['kDirEntry_t'] = tuple(sorted(os.scandir(loDir_s), key=laSortKey_cll))
@@ -104,7 +105,7 @@ def mFll_Stt_fe(laNewDir_s=None, laSortKey_cll=lambda _el: _el.name.upper(),
       mStt_d['kDirEntry_t'] = tuple(os.scandir(loDir_s))
     loTT_t = tuple((_el.name, _el.is_file(follow_symlinks=False), _el.is_dir(follow_symlinks=False),
         _el.is_symlink()) for _el in mStt_d['kDirEntry_t'])
-    mStt_d['kTSumT_t'] = (sum(_el[1] for _el in loTT_t), sum(_el[2] for _el in loTT_t),
+    mStt_d['kTSum_t'] = (sum(_el[1] for _el in loTT_t), sum(_el[2] for _el in loTT_t),
         sum(_el[3] for _el in loTT_t))
 
 def mOuP_Stt_fmp(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
@@ -113,11 +114,11 @@ def mOuP_Stt_fmp(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
   else: lo_s = lo_s.format(mStt_d['kStkDir_l'][-1])
   if mStt_d['kDirEntry_t'] is None:
     lo_s += f"All:0"
-  elif mStt_d['kTSumT_t'] is None:
+  elif mStt_d['kTSum_t'] is None:
     lo_s += f"All:{len(mStt_d['kDirEntry_t'])}"
   else:
     lo_s += (f"(All,File,Dir,SLink):({len(mStt_d['kDirEntry_t'])}," +
-       ','.join(str(_el) for _el in mStt_d['kTSumT_t']) + ')')
+       ','.join(str(_el) for _el in mStt_d['kTSum_t']) + ')')
   # print(f"kRtDir_s={mStt_d['kRtDir_s']}, kCurRelDir_s={mStt_d['kCurRelDir_s']}",
   #     lo_s, sep=', ', file=file)
   # tNL_s = '\n'
@@ -156,6 +157,26 @@ def mA_MyBankAcc_ffmp(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
 def mA_Dvl_fm(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
   raise OSError('ts')
 
+def mA_VieAll_fm(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
+  loAll_i = sum(mStt_d['kTSum_t'])
+  lo_s = f" in Dir:({mStt_d['kStkDir_l'][-1]})"
+  if loAll_i == 0:
+    print("No files, directories or softlinks" + lo_s + '.', file=file)
+  elif (loCo_i:=mStt_d['kTSum_t'][0]) != 0: #file|files
+    lo_s = str(loCo_i) + ' file' if loCo_i == 1 else ' files' + lo_s + ':\n'
+    print(str(loCo_i) + ' file' if loCo_i == 1 else ' files' + lo_s + ':', file=file)
+    print(*(_el.name for _el in mStt_d['kDirEntry_t']
+    if _el.is_file(follow_symlinks=False)), sep='\n', file=file)
+  elif mStt_d['kTSum_t'][1] != 0: #directory|directories
+    pass
+  elif mStt_d['kTSum_t'][2] != 0: #softlink|softlinks
+    pass
+  return
+
+def mA_CreFi_fm(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
+  return
+
+# mStt_d = dict(kStkDir_l=[], kDirEntry_t=None, kTSum_t=None)
 mMainMenu_d = {
  '0': ('Создать файл', None, None), # open(Na, mode='x)
  '1': ('Создать папку', None),
