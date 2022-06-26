@@ -8,7 +8,7 @@ mOutStt_d = dict(kAccSum_n=0, kBuyHstT_l=[])
 def mA_RefillAcc_ffmp(laSf_o, file=sys.stdout):
   # loAdd_n = mInP_FltAVali_fefi(f' Введите сумму на сколько пополнить счет\n',
   lo_s = 'положительное число,\n например: (10), (1_000,33), (100.15) или (1000,55)\n'
-  loAdd_n = mInP_FltAVali_fefi(f' сумму на сколько пополнить счет\n',
+  loAdd_n = mInP_FltAVali_fefi(f' сумму пополнения счета\n',
       laInPTypeFlt_cll=lambda _s: float(_s.replace(',', '.')),
       laDfV_s=mCre_SFrFloat_ff(100),
       # laInPTypeFlt_cll=float, laDfV_s='100.00',

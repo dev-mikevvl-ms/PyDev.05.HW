@@ -37,11 +37,28 @@ import mod.MVVlStd, mod.victory, mod.MyBankAcc
   loMenu_o = mod.MVVlStd.mMenu_c(mMenu_d, **loKwArg_d)
 '''
 from distutils.command.build import build
-import io, sys, time
+import io, os, sys, time
 from dataclasses import dataclass, field
 from collections.abc import Callable
 from typing import Any, Optional, Protocol, TypeAlias, TypeVar
 
+mT_ca = TypeVar("mT_ca")
+mT_contra_ca = TypeVar("mT_contra_ca", contravariant=True)
+mSelf_ca = TypeVar("mSelf_ca")
+# mIntOStr_ca = TypeVar("mIntOStr_ca", int, str)
+
+class mSupportsWrite_ca(Protocol[mT_contra_ca]):
+    def write(self, __s: mT_contra_ca) -> object: ...
+
+class mSupportsDunderLT_ca(Protocol):
+    def __lt__(self, __other: Any) -> bool: ...
+class mSupportsDunderGT_ca(Protocol):
+    def __gt__(self, __other: Any) -> bool: ...
+mSupportsRichComparison_ca: TypeAlias = mSupportsDunderLT_ca | mSupportsDunderGT_ca
+
+mMenu_ca = TypeVar("mMenu_ca", bound="mMenu_c")
+# mItmV_ca = TypeVar("mItmV_ca", list[str, Callable[[mMenu_ca, mSupportsWrite_ca | None], list],
+#     Optional(Any)])
 
 glScrWid_i = 80
 glSep_s = '_' *glScrWid_i
@@ -81,6 +98,34 @@ def mCre_SFrFloat_ff(laSrc_n:float, laReg_s:str='RU', la1kSep_s:str='_',
 # '''
 # ('1_000,', '1 000,', '1000,', '1.000,', '1_000,', '1_000,', '1 000,', '1000,', '1.000,', '1_000,', '1_000', '1 000', '1000', '1.000', '1_000', '1_000', '1 000', '1000', '1.000', '1_000', '1_000,', '1 000,', '1000,', '1.000,', '1_000,', '1_000,', '1 000,', '1000,', '1.000,', '1_000,', '1_000', '1 000', '1000', '1.000', '1_000', '1_000', '1 000', '1000', '1.000', '1_000', '1_000.', '1 000.', '1000.', '1_000.', '1,000.', '1_000.', '1 000.', '1000.', '1_000.', '1,000.', '1_000', '1 000', '1000', '1_000', '1,000', '1_000', '1 000', '1000', '1_000', '1,000', '1_000.', '1 000.', '1000.', '1_000.', '1,000.', '1_000.', '1 000.', '1000.', '1_000.', '1,000.', '1_000', '1 000', '1000', '1_000', '1,000', '1_000', '1 000', '1000', '1_000', '1,000', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122,444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', '-122.444', ',159_8', ',159 8', ',1598', ',159.8', ',159_8', '0,159_8', '0,159 8', '0,1598', '0,159.8', '0,159_8', ',159_8', ',159 8', ',1598', ',159.8', ',159_8', '0,159_8', '0,159 8', '0,1598', '0,159.8', '0,159_8', ',1598', ',1598', ',1598', ',1598', ',1598', '0,1598', '0,1598', '0,1598', '0,1598', '0,1598', ',1598', ',1598', ',1598', ',1598', ',1598', '0,1598', '0,1598', '0,1598', '0,1598', '0,1598', '.159_8', '.159 8', '.1598', '.159_8', '.159,8', '0.159_8', '0.159 8', '0.1598', '0.159_8', '0.159,8', '.159_8', '.159 8', '.1598', '.159_8', '.159,8', '0.159_8', '0.159 8', '0.1598', '0.159_8', '0.159,8', '.1598', '.1598', '.1598', '.1598', '.1598', '0.1598', '0.1598', '0.1598', '0.1598', '0.1598', '.1598', '.1598', '.1598', '.1598', '.1598', '0.1598', '0.1598', '0.1598', '0.1598', '0.1598', '0,', '0,', '0,', '0,', '0,', '0,', '0,', '0,', '0,', '0,', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0,', '0,', '0,', '0,', '0,', '0,', '0,', '0,', '0,', '0,', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0.', '0.', '0.', '0.', '0.', '0.', '0.', '0.', '0.', '0.', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0.', '0.', '0.', '0.', '0.', '0.', '0.', '0.', '0.', '0.', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', ',5', ',5', ',5', ',5', ',5', '0,5', '0,5', '0,5', '0,5', '0,5', ',5', ',5', ',5', ',5', ',5', '0,5', '0,5', '0,5', '0,5', '0,5', ',5', ',5', ',5', ',5', ',5', '0,5', '0,5', '0,5', '0,5', '0,5', ',5', ',5', ',5', ',5', ',5', '0,5', '0,5', '0,5', '0,5', '0,5', '.5', '.5', '.5', '.5', '.5', '0.5', '0.5', '0.5', '0.5', '0.5', '.5', '.5', '.5', '.5', '.5', '0.5', '0.5', '0.5', '0.5', '0.5', '.5', '.5', '.5', '.5', '.5', '0.5', '0.5', '0.5', '0.5', '0.5', '.5', '.5', '.5', '.5', '.5', '0.5', '0.5', '0.5', '0.5', '0.5')
 # '''
+
+def mCre_AbsPath_ff(laPth4Cre_s, laCurDir_s=None):
+  if not os.path.isabs(laPth4Cre_s):
+    if laCurDir_s is None: laCurDir_s = os.path.realpath(os.curdir)
+    return os.path.abspath(os.path.normpath(
+        os.path.join(laCurDir_s, laPth4Cre_s)))
+  else: return os.path.normpath(laPth4Cre_s)
+
+# !!!(os.path.exists): path refers to an existing path or an open file descriptor.
+#  Returns False for broken symbolic links. On some platforms, this function
+#  may return False if permission is not granted to execute os.stat()
+#  on the requested file, even if the path physically exists
+def mChe_ExsPath_ff(laPth4Che_s, laCurDir_s=None, laCheBroLnk_b=True):
+  # if str(laPth4Che_s).strip() == '': return False
+  loAbsPht_s = mCre_AbsPath_ff(laPth4Che_s, laCurDir_s=laCurDir_s)
+  # print(loAbsPht_s)
+  return os.path.exists(loAbsPht_s) or (laCheBroLnk_b and os.path.lexists(loAbsPht_s))
+# teCurDir_s = 'd:\\Doc\\Dvl\\Prj\\Py\\Stu\\PyDev\\05\\HW'
+# mChe_ExsPath_ff(r'ts\ts.txt', teCurDir_s), mChe_ExsPath_ff(r'ts\ts.txt'),\
+# mChe_ExsPath_ff(r'ts\ts.txt', laCheBroLnk_b=False), mChe_ExsPath_ff(''),\
+# mChe_ExsPath_ff(r'ts\ts.txt', teCurDir_s, False), mChe_ExsPath_ff(' \n\t '),\
+# mChe_ExsPath_ff(r'd:\doc\dvl\prj\py\stu\pydev\05\hw\ts\ts.txt', teCurDir_s),\
+# mChe_ExsPath_ff(r'd:\doc\dvl\prj\py\stu\pydev\05\hw\ts\ts.txt', teCurDir_s, False)
+# (True, True, False, False, False, False, True, False)
+
+mWaiMsg_s = 'Пожалуйста, нажмите Enter для возврата в меню.'
+def mInP_Wai_fp(laMsg_s=None, file:mSupportsWrite_ca=sys.stdout):
+    input((laMsg_s if laMsg_s is not None else mWaiMsg_s))
 
 mStdMsg4InP_t = (' Please, Input', ' and press Enter',
     'Your value will be validated as', 'on default ',
@@ -187,23 +232,6 @@ def mInP_FltAVali_fefi(laWhatInPMsg_s, laInPValues_co=1, laValiInPMsg_s='',
 #     laVali_cll=lambda _s: _s.upper() in tValiV_t))
 # tRes_l.sort()
 # print(tRes_l)
-mT_ca = TypeVar("mT_ca")
-mT_contra_ca = TypeVar("mT_contra_ca", contravariant=True)
-mSelf_ca = TypeVar("mSelf_ca")
-# mIntOStr_ca = TypeVar("mIntOStr_ca", int, str)
-
-class mSupportsWrite_ca(Protocol[mT_contra_ca]):
-    def write(self, __s: mT_contra_ca) -> object: ...
-
-class mSupportsDunderLT_ca(Protocol):
-    def __lt__(self, __other: Any) -> bool: ...
-class mSupportsDunderGT_ca(Protocol):
-    def __gt__(self, __other: Any) -> bool: ...
-mSupportsRichComparison_ca: TypeAlias = mSupportsDunderLT_ca | mSupportsDunderGT_ca
-
-mMenu_ca = TypeVar("mMenu_ca", bound="mMenu_c")
-# mItmV_ca = TypeVar("mItmV_ca", list[str, Callable[[mMenu_ca, mSupportsWrite_ca | None], list],
-#     Optional(Any)])
 @dataclass
 class mMenu_c():
   '''Class menu 
@@ -300,14 +328,15 @@ class mMenu_c():
         lo_cll = self[self.fInP_k][1]
         if callable(lo_cll):
           self.fRes_a = lo_cll(self, file=file)
-          if self.fActHst_l is not None:
-            self.fActHst_l.append((time.time_ns(), 'InP',
-                f'({self.fInP_s})' + self[self.fInP_k][0], self.fRes_a))
         else: # 2Do:??AddHst
+          self.fRes_a = lo_cll
           print(f'DVL: None 4 calling Fu() пункт меню({self.fInP_k})', file=file)
-          continue
+          # continue
+        if self.fActHst_l is not None:
+          self.fActHst_l.append((time.time_ns(), 'Res',
+              f'({self.fInP_s})' + self[self.fInP_k][0], self.fRes_a))
       else:
-          print(f'MSG: Неверный пункт меню({self.fInP_s})', file=file) # 2Do:??AddHst
+        print(f'MSG: Неверный пункт меню, Вы ввели({self.fInP_s!r})', file=file) # 2Do:??AddHst
     else:
       if self.fHeaFmt_s != '': print(self.fHeaFmt_s, file=file)
       print('До свидания!', file=file)

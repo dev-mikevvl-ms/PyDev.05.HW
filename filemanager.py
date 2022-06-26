@@ -19,8 +19,10 @@
 """
 import copy, os, shutil, sys
 import itertools as itts
+import functools as futs
 
-from mod.MVVlStd import glSep_s, mInP_FltAVali_fefi, mMenu_c, mSupportsWrite_ca
+from mod.MVVlStd import (glSep_s, mInP_FltAVali_fefi, mMenu_c, mSupportsWrite_ca,
+    mChe_ExsPath_ff, mCre_AbsPath_ff, mInP_Wai_fp)
 import mod.victory, mod.MyBankAcc
 
 # import os
@@ -51,36 +53,12 @@ import mod.victory, mod.MyBankAcc
 # mMainMenu_d = dict(list((str(_i), [_s, None]) for _i, _s in enumerate(mDig_l, 1))
 #              + list((_s1, [_s, None]) for _s1, _s in zip('ИЯВБСЫ', mAlpha_l)))
  
-# mStt_d = dict(kRtDir_s=None, kCurRelDir_s=None, kDirEntry_t=None)
+mOuPSep_s = '=' *32
 
-# def mFll_Stt_fe(laDir_s=None, laSortKey_cll=lambda _el: _el.name.upper(),
-#                      laChe_b:bool=False) -> bool:
-#   if laDir_s is None: laDir_s = os.curdir # Init|RScan
-  
-#   if mStt_d['kRtDir_s'] is None: loDir_s = os.path.realpath(laDir_s)
-#   else:
-#     loDir_s = os.path.realpath(os.path.join(mStt_d['kRtDir_s'], mStt_d['kCurRelDir_s'], laDir_s))
-#     if laChe_b:
-#       loCommPrx_s = os.path.commonpath((mStt_d['kRtDir_s'], loDir_s)) # 2Do Cch:ValueError
-#       if loCommPrx_s != mStt_d['kRtDir_s']: # Sec: loDir_s is not SbDir(mStt_d['kRtDir_s'])
-#         print("DVL:loDir_s is not SbDir(mStt_d['kRtDir_s'])")
-#         return False
-  
-#   # if os.path.exists(loDir_s) and os.path.isdir(loDir_s): # Dlg(scandir)
-#   if laSortKey_cll is None:
-#     mStt_d['kDirEntry_t'] = tuple(os.scandir(loDir_s))
-#   else:
-#     mStt_d['kDirEntry_t'] = tuple(sorted(os.scandir(loDir_s), key=laSortKey_cll))
-#   if mStt_d['kRtDir_s'] is None:
-#     mStt_d['kRtDir_s'] = loDir_s
-#     mStt_d['kCurRelDir_s'] = os.curdir
-#   else: 
-#     mStt_d['kCurRelDir_s'] = os.path.relpath(loDir_s, start=mStt_d['kRtDir_s'])
-#   return True
-#   # else: return False
-
-mStt_d = dict(kStkDir_l=[], kDirEntry_t=None, kTSum_t=None)
-# mStt_d = dict(kStkDir_llist[str]=[], kDirEntry_t:tuple[os.DirEntry]=None)
+# mStt_d = dict(kStkDir_llist[str]=[], kDirEntry_t:tuple[os.DirEntry]=None,
+# kTSum_t:tuple(Fi_i, Dir_i, !(Fi|Di)_i, SLnk_i)=None,
+# kPreSrtByTyT_t:tuple[tuple[Na_s, Ty_s2:'[DF~][L ]]]=None)
+mStt_d = dict(kStkDir_l=[], kDirEntry_t=None, kTSum_t=None, kPreSrtByTyT_t=None)
 
 def mFll_Stt_fe(laNewDir_s=None, laSortKey_cll=lambda _el: _el.name.upper(),
                      laScan_b:bool=True):
@@ -97,16 +75,21 @@ def mFll_Stt_fe(laNewDir_s=None, laSortKey_cll=lambda _el: _el.name.upper(),
     laScan_b = laScan_b or True
   else: pass # SameDir
 
-  if laScan_b or mStt_d['kDirEntry_t'] is None or mStt_d['kTSum_t'] is None:
-    # print(f'DVL:{laScan_b=}')
+  if (laScan_b or mStt_d['kDirEntry_t'] is None or mStt_d['kTSum_t'] is None
+      or mStt_d['kPreSrtByTyT_t'] is None):
     if callable(laSortKey_cll):
       mStt_d['kDirEntry_t'] = tuple(sorted(os.scandir(loDir_s), key=laSortKey_cll))
     else:
       mStt_d['kDirEntry_t'] = tuple(os.scandir(loDir_s))
-    loTT_t = tuple((_el.name, _el.is_file(follow_symlinks=False), _el.is_dir(follow_symlinks=False),
-        _el.is_symlink()) for _el in mStt_d['kDirEntry_t'])
-    mStt_d['kTSum_t'] = (sum(_el[1] for _el in loTT_t), sum(_el[2] for _el in loTT_t),
-        sum(_el[3] for _el in loTT_t))
+
+    loTIt_t = itts.tee(((_el.name, _el.is_file(), _el.is_dir(), _el.is_symlink())
+                        for _el in mStt_d['kDirEntry_t']), 5)
+    mStt_d['kTSum_t'] = (sum(_el[1] for _el in loTIt_t[0]), sum(_el[2] for _el in loTIt_t[1]),
+        sum((not _el[1] and not _el[2]) for _el in loTIt_t[2]), sum(_el[3] for _el in loTIt_t[3]))
+    lo_it = ((_el[0], (('F' if _el[1] else '') or ('D' if _el[2] else '') or "~"), # Srt:DF~, LsPrintableSbl(ASCII):~
+                   ('L' if _el[3] else ' ')) for _el in loTIt_t[4])
+    mStt_d['kPreSrtByTyT_t'] = tuple((_el[0], (_el[1] + _el[2])) for _el
+        in sorted(lo_it, key=lambda _el: _el[1]))
 
 def mOuP_Stt_fmp(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
   lo_s = "ТекДиректория:({}), "
@@ -117,16 +100,12 @@ def mOuP_Stt_fmp(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
   elif mStt_d['kTSum_t'] is None:
     lo_s += f"All:{len(mStt_d['kDirEntry_t'])}"
   else:
-    lo_s += (f"(All,File,Dir,SLink):({len(mStt_d['kDirEntry_t'])}," +
+    lo_s += (f"(All,File,Dir,Oth,+SLink):({len(mStt_d['kDirEntry_t'])}," +
        ','.join(str(_el) for _el in mStt_d['kTSum_t']) + ')')
-  # print(f"kRtDir_s={mStt_d['kRtDir_s']}, kCurRelDir_s={mStt_d['kCurRelDir_s']}",
-  #     lo_s, sep=', ', file=file)
-  # tNL_s = '\n'
-  # print(f"{tNL_s.join((str(_el) for _el in mStt_d['kDirEntry_t']))}")
-  # print(tNL_s.join((str(_el) for _el in mStt_d['kDirEntry_t'])))
+       
   print(lo_s, file=file)
 
-# InPHstEl:(fCurDirL_ix, fInP_s, fDesc_s, fRes_a)
+# InPHstEl:??(fCurDirL_ix, fInP_s, fDesc_s, fRes_a)
 
 def mA_Exit_fm(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
   laSf_o.fRunLoop_b = False
@@ -135,16 +114,20 @@ def mA_Exit_fm(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
 # InfoMenuItems
 def mA_SysInfo_ffmp(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
   loMsg_s = f"{sys.platform=}\n{sys.version=}\n{sys.api_version=}."
-  print(loMsg_s, file=file)
+  print(mOuPSep_s, loMsg_s, mOuPSep_s, sep='\n', file=file)
+  if laSf_o is not None: mInP_Wai_fp(file=file)
   return loMsg_s
+
 def mA_MyInfo_ffmp(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
   loMsg_s = "Creator/Author: Mike Vl. Vlasov <dev.mikevvl@outlook.com>."
-  print(loMsg_s, file=file)
+  print(mOuPSep_s, loMsg_s, mOuPSep_s, sep='\n', file=file)
+  if laSf_o is not None: mInP_Wai_fp(file=file)
   return loMsg_s
 
 # OutModItm
 def mA_victory_ffmp(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
   return mod.victory.main(None)
+  
 def mA_MyBankAcc_ffmp(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
   return mod.MyBankAcc.main(None, fAFile4Prn_o=file)
 
@@ -157,42 +140,172 @@ def mA_MyBankAcc_ffmp(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
 def mA_Dvl_fm(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
   raise OSError('ts')
 
-def mA_VieAll_fm(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
-  loAll_i = sum(mStt_d['kTSum_t'])
-  lo_s = f" in Dir:({mStt_d['kStkDir_l'][-1]})"
-  if loAll_i == 0:
-    print("No files, directories or softlinks" + lo_s + '.', file=file)
-  elif (loCo_i:=mStt_d['kTSum_t'][0]) != 0: #file|files
-    lo_s = str(loCo_i) + ' file' if loCo_i == 1 else ' files' + lo_s + ':\n'
-    print(str(loCo_i) + ' file' if loCo_i == 1 else ' files' + lo_s + ':', file=file)
-    print(*(_el.name for _el in mStt_d['kDirEntry_t']
-    if _el.is_file(follow_symlinks=False)), sep='\n', file=file)
-  elif mStt_d['kTSum_t'][1] != 0: #directory|directories
-    pass
-  elif mStt_d['kTSum_t'][2] != 0: #softlink|softlinks
-    pass
-  return
+# print(*(f'{_ix!s:>2}. ({_el[1]}) <{_el[0]}>' for _ix, _el
+#      in enumerate(mStt_d['kPreSrtByTyT_t'], 0) if _el[1][0] in 'F~'), '-' *32,
+#      *(f'{_ix!s:>2}. {_s}' for _ix, _s in enumerate(f'({_el[1]}) <{_el[0]}>' for _el
+#      in mStt_d['kPreSrtByTyT_t'] if _el[1][0] == 'F')), sep='\n')
+'''
+ 2. (F ) <LICENSE>
+ 3. (F ) <README.md>
+ 4. (F ) <ts1.py>
+ 5. (~L) <ts.txt>
+--------------------------------
+ 0. (F ) <LICENSE>
+ 1. (F ) <README.md>
+ 2. (F ) <ts1.py>
+'''
+def mOuP_Vie_fpt(laVie_t, laTDesc1OrMOrNo_t, laHea_s='Fmt:([DF~][L ]) <name>',
+    laPau_b=False, file:mSupportsWrite_ca=sys.stdout):
+  print(f"In Dir:({mStt_d['kStkDir_l'][-1]}):\n" + mOuPSep_s)
+  loCo_i = len(laVie_t)
+  if loCo_i == 0:
+    print(laTDesc1OrMOrNo_t[-1] + '.\n' + mOuPSep_s, file=file)
+  else:
+    lo_s = (laTDesc1OrMOrNo_t[0] if loCo_i == 1 else laTDesc1OrMOrNo_t[1])
+    if laHea_s is not None: lo_s += f'({laHea_s})'
+    print(lo_s + ":", file=file)
+    print(*laVie_t, mOuPSep_s, sep='\n', file=file)
+  if laPau_b: mInP_Wai_fp(file=file)
 
-def mA_CreFi_fm(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
-  return
+
+def mA_VieAll_fmf(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
+  lo_t = tuple(f'({_el[1]}) <{_el[0]}>' for _el in mStt_d['kPreSrtByTyT_t'])
+  mOuP_Vie_fpt(lo_t, ('One', 'All', 'No files, directories or others'),
+      file=file) 
+  if laSf_o is not None: mInP_Wai_fp(file=file)
+  return lo_t
+
+def mA_VieFi_fmf(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
+  lo_t = tuple(f'({_el[1]}) <{_el[0]}>' for _el in mStt_d['kPreSrtByTyT_t']
+               if _el[1][0] == 'F')
+  mOuP_Vie_fpt(lo_t, ('File', 'Files', 'No files'), 
+      file=file) 
+  if laSf_o is not None: mInP_Wai_fp(file=file)
+  return lo_t
+
+def mA_VieDir_fmf(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
+  lo_t = tuple(f'({_el[1]}) <{_el[0]}>' for _el in mStt_d['kPreSrtByTyT_t']
+               if _el[1][0] == 'D')
+  mOuP_Vie_fpt(lo_t, ('Directory', 'Directories', 'No directories'),
+      file=file) 
+  if laSf_o is not None: mInP_Wai_fp(file=file)
+  return lo_t
+
+def mA_VieSLnk_fmf(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
+  lo_t = tuple(f'({_el[1]}) <{_el[0]}>' for _el in mStt_d['kPreSrtByTyT_t']
+               if _el[1][-1] == 'L')
+  mOuP_Vie_fpt(lo_t, ('Softlink', 'Softlinks', 'No softlinks'),
+      file=file) 
+      # laPau_b=(laSf_o is not None), file=file) 
+  if laSf_o is not None: mInP_Wai_fp(file=file)
+  return lo_t
+
+def mA_CreFi_fimpf(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
+  mA_VieAll_fmf(None, file)
+  lo_cll = lambda _s: str(_s) == '' or (str(_s).strip() != ''\
+      and not mChe_ExsPath_ff(_s, laCurDir_s=mStt_d['kStkDir_l'][-1]))
+  # lo_cll = futs.partial(mChe_ExsPath_ff, laCurDir_s=mStt_d['kDirEntry_t'][-1])
+  lo_s = ('файл (каталог или любой\n другой объект файл.системы) '
+    + 'с введеным (пустое для возврата в меню)\n именем не должен существовать')
+  loRes_s = mInP_FltAVali_fefi(' имя нового файла (абсол. или относит.)\n',
+      laInPTypeFlt_cll=None, laValiInPMsg_s=lo_s, laVali_cll=lo_cll,
+      laAcceptEmptyInPAsDf_b=True, file=file)[0]
+  if loRes_s == '': return None
+  loAbsPth_s = mCre_AbsPath_ff(loRes_s, mStt_d['kStkDir_l'][-1])
+  # with open(os.path.join(loAbsPth_s), mode='x') as lw_o:
+  #   ...
+  try:
+    loFi_o = open(loAbsPth_s, mode='x')
+  except OSError as loExc_o:
+    print((f"\tERR: You input:'{loRes_s}' INVALID "
+        + f"with exception:({loExc_o}), try again next time."), file=file)
+    if laSf_o is not None: mInP_Wai_fp(file=file)
+    return str(loExc_o)
+  else:
+    print(f"\tMSG: You input:'{loRes_s}' and create file:({loAbsPth_s})", file=file)
+    if laSf_o is not None: mInP_Wai_fp(file=file)
+    mFll_Stt_fe(mStt_d['kStkDir_l'][-1])
+    return loAbsPth_s
+  # finally:
+  #   loFi_o.close()
+
+def mA_CreDir_fimpf(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
+  mA_VieAll_fmf(None, file)
+  lo_cll = lambda _s: str(_s) == '' or (str(_s).strip() != ''\
+      and not mChe_ExsPath_ff(_s, laCurDir_s=mStt_d['kStkDir_l'][-1]))
+  # lo_cll = futs.partial(mChe_ExsPath_ff, laCurDir_s=mStt_d['kDirEntry_t'][-1])
+  lo_s = ('каталог (файл или любой другой\n объект файл.системы) '
+    + 'с введеным (пустое для возврата в\n меню) именем не должен существовать')
+  loRes_s = mInP_FltAVali_fefi(' имя нового каталога (абсол. или относит.)\n',
+      laInPTypeFlt_cll=None, laValiInPMsg_s=lo_s, laVali_cll=lo_cll,
+      laAcceptEmptyInPAsDf_b=True, file=file)[0]
+  if loRes_s == '': return None
+  loAbsPth_s = mCre_AbsPath_ff(loRes_s, mStt_d['kStkDir_l'][-1])
+  # with open(os.path.join(loAbsPth_s), mode='x') as lw_o:
+  #   ...
+  try:
+    os.makedirs(loAbsPth_s)
+  except OSError as loExc_o:
+    print((f"\tERR: You input:'{loRes_s}' INVALID "
+        + f"with exception:({loExc_o}), try again next time."), file=file)
+    if laSf_o is not None: mInP_Wai_fp(file=file)
+    return str(loExc_o)
+  else:
+    print(f"\tMSG: You input:'{loRes_s}' and create directory:({loAbsPth_s})", file=file)
+    if laSf_o is not None: mInP_Wai_fp(file=file)
+    mFll_Stt_fe(mStt_d['kStkDir_l'][-1])
+    return loAbsPth_s
+  # finally:
+  #   loFi_o.close()
+
+def mA_ChaCurDi_fimpf(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
+  mA_VieDir_fmf(None, file)
+  lo_cll = lambda _s: str(_s) == '' or (str(_s).strip() != ''\
+      and os.path.isdir(mCre_AbsPath_ff(_s, laCurDir_s=mStt_d['kStkDir_l'][-1])))
+      # and mChe_ExsPath_ff(_s, laCurDir_s=mStt_d['kStkDir_l'][-1])\
+  # lo_cll = futs.partial(mChe_ExsPath_ff, laCurDir_s=mStt_d['kDirEntry_t'][-1])
+  lo_s = ('каталог с введеным (пустое для возврата в\n меню) именем должен существовать')
+  loRes_s = mInP_FltAVali_fefi(' имя нового каталога (абсол. или относит.)\n',
+      laInPTypeFlt_cll=None, laValiInPMsg_s=lo_s, laVali_cll=lo_cll,
+      laAcceptEmptyInPAsDf_b=True, file=file)[0]
+  if loRes_s == '': return None
+  loAbsPth_s = mCre_AbsPath_ff(loRes_s, mStt_d['kStkDir_l'][-1])
+  # with open(os.path.join(loAbsPth_s), mode='x') as lw_o:
+  #   ...
+  try:
+    mFll_Stt_fe(loAbsPth_s)
+  except OSError as loExc_o:
+    print((f"\tERR: You input:'{loRes_s}' INVALID "
+        + f"with exception:({loExc_o}), try again next time."), file=file)
+    if laSf_o is not None: mInP_Wai_fp(file=file)
+    return str(loExc_o)
+  else:
+    print(f"\tMSG: You input:'{loRes_s}' and change current directory:({loAbsPth_s})", file=file)
+    if laSf_o is not None: mInP_Wai_fp(file=file)
+    return loAbsPth_s
+  # finally:
+  #   loFi_o.close()
+# mA_ChaCurDi_fimpf(None)
+# mOuP_Stt_fmp(None)
 
 # mStt_d = dict(kStkDir_l=[], kDirEntry_t=None, kTSum_t=None)
 mMainMenu_d = {
- '0': ('Создать файл', None, None), # open(Na, mode='x)
- '1': ('Создать папку', None),
+ '0': ('Создать файл', mA_CreFi_fimpf, None), # open(Na, mode='x)
+ '1': ('Создать папку', mA_CreDir_fimpf),
  '2': ('Удалить файл', None),
  '3': ('Удалить папку', None),
  '4': ('Копировать файл', None),
  '5': ('Копировать папку', None),
- '6': ('Просмотр содержимого рабочей директории', None),
- '7': ('Посмотреть только папки', None),
- '8': ('Посмотреть только файлы', None),
- '9': ('Смена рабочей директории', None),
- 'В': ('Играть в викторину', mA_victory_ffmp),
- 'Б': ('Мой банковский счет', mA_MyBankAcc_ffmp),
- 'И': ('Просмотр информации об операционной системе', mA_SysInfo_ffmp),
- 'Я': ('Создатель программы', mA_MyInfo_ffmp, None),
- 'Ы': ('Выход', mA_Exit_fm),
+ '6': ('Просмотр содержимого рабочей директории', mA_VieAll_fmf),
+ '7': ('Посмотреть только папки', mA_VieDir_fmf),
+ '8': ('Посмотреть только файлы', mA_VieFi_fmf),
+ '9': ('Посмотреть только ссылки(soft)', mA_VieSLnk_fmf),
+ 'С': ('Смена рабочей директории', mA_ChaCurDi_fimpf),
+ 'В': ('Играть в Викторину', mA_victory_ffmp),
+ 'Б': ('Мой Банковский счет', mA_MyBankAcc_ffmp),
+ 'И': ('Просмотр Информации об операционной системе', mA_SysInfo_ffmp),
+ 'Я': ('Я - создатель программы', mA_MyInfo_ffmp, None),
+ 'Ы': ('ВЫход', mA_Exit_fm),
  'Ф': ('Девел.', mA_Dvl_fm)
  }
 
