@@ -36,7 +36,7 @@ import mod.MVVlStd, mod.victory, mod.MyBankAcc
 # mInP_FltAVali_fefi('?')
   loMenu_o = mod.MVVlStd.mMenu_c(mMenu_d, **loKwArg_d)
 '''
-from distutils.command.build import build
+
 import io, os, sys, time
 from dataclasses import dataclass, field
 from collections.abc import Callable
@@ -123,10 +123,51 @@ def mChe_ExsPath_ff(laPth4Che_s, laCurDir_s=None, laCheBroLnk_b=True):
 # mChe_ExsPath_ff(r'd:\doc\dvl\prj\py\stu\pydev\05\hw\ts\ts.txt', teCurDir_s, False)
 # (True, True, False, False, False, False, True, False)
 
+# 2Do(import gettext??(, locale)):(Internationalization (I18N) & Localization (L10N))
 mWaiMsg_s = 'Пожалуйста, нажмите Enter для возврата в меню.'
 def mInP_Wai_fp(laMsg_s=None, file:mSupportsWrite_ca=sys.stdout):
-    input((laMsg_s if laMsg_s is not None else mWaiMsg_s))
+  input((laMsg_s if laMsg_s is not None else mWaiMsg_s))
 
+# 2Do(import gettext??(, locale)):(Internationalization (I18N) & Localization (L10N))
+mCfmMsg_sf = 'Пожалуйста, подтвердите Ваше решение{}\n - введите{} и нажмите Enter:'
+mCfmDfPtt_s = ' ДА'
+def mInP_Cfm_ffp(laDecision_s='', laPtt_s=mCfmDfPtt_s, laMsg_sf=None,
+    laInPFlt_cll=lambda _s: _s.lower(), file:mSupportsWrite_ca=sys.stdout):
+  laPtt_s = mCfmDfPtt_s if laPtt_s is None else str(laPtt_s)
+  laDecision_s = '' if laDecision_s is None else str(laDecision_s)
+  laMsg_sf = mCfmMsg_sf if laMsg_sf is None else str(laMsg_sf)
+  lo_s = laMsg_sf.format(laDecision_s, laPtt_s)
+  # lo_s, loPtt_s, loDecision_s, loMsg_sf = None, laPtt_s, laDecision_s, laMsg_sf
+  
+  # loPHCo_i = loMsg_sf.count('{}') # 2Do:SeaRx(\{(.*?)\})
+  # if loPHCo_i < 1 and loMsg_sf.strip() != '':
+  #   lo_s = loMsg_sf
+  # for loTry_i in range(3, -1,-1):
+  #   try:
+  #     lo_s = loMsg_sf.format(loDecision_s, loPtt_s)
+  #   except SyntaxError as loExc_o:
+  #     match loTry_i:
+  #       case [3]:
+  #         loMsg_sf = mCfmMsg_sf
+  #         print(loTry_i, "mCfmMsg_sf.format(loDecision_s, loPtt_s)")
+  #       case [2]:
+  #         loDecision_s = ''
+  #         print(loTry_i, "mCfmMsg_sf.format('', loPtt_s)")
+  #       case [1]:
+  #         loPtt_s = mCfmDfPtt_s
+  #         print(loTry_i, "mCfmMsg_sf.format('', mCfmDfPtt_s)")
+  #       case [0]:
+  #         loPtt_s = 'ДА'
+  #         lo_s = 'Пожалуйста, подтвердите Ваше решение\n - введите ДА и нажмите Enter:'
+  #         print(loTry_i, f'{lo_s!r}')
+
+  loRes_s = input(lo_s)
+  if callable(laInPFlt_cll):
+    loRes_s, loPtt_s = laInPFlt_cll(loRes_s), laInPFlt_cll(loPtt_s)
+  return loRes_s == loPtt_s or loRes_s.strip() == loPtt_s.strip()
+  # 2Do: MaB: loPtt_s CaB:tuple
+
+# 2Do(import gettext??(, locale)):(Internationalization (I18N) & Localization (L10N))
 mStdMsg4InP_t = (' Please, Input', ' and press Enter',
     'Your value will be validated as', 'on default ',
     # ' and {} attempt{} left'
@@ -136,7 +177,7 @@ mStdMsg4InP_t = (' Пожалуйста, введите', ' и нажмите En
     'Ваш ввод должен соответствовать усл.', 'по умолчанию ',
     ' и осталось {} попыт.',
     ' Нужно ввести еще {} знач.{}.')
-# 2Do:mInP_FltAVali_fefi->_c(...)
+# 2Do:mInP_FltAVali_fefi->..._c(...)
 def mInP_FltAVali_fefi(laWhatInPMsg_s, laInPValues_co=1, laValiInPMsg_s='',
     laVali_cll=None, laInPTypeFlt_cll=int, laMaxInPTry_co=11,
     laAcceptEmptyInPAsDf_b=False, laDfV_s=None, laMsg4InP_l=mStdMsg4InP_t,

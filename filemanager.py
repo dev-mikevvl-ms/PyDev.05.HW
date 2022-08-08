@@ -60,7 +60,7 @@ mOuPSep_s = '=' *32
 # kPreSrtByTyT_t:tuple[tuple[Na_s, Ty_s2:'[DF~][L ]]]=None)
 mStt_d = dict(kStkDir_l=[], kDirEntry_t=None, kTSum_t=None, kPreSrtByTyT_t=None)
 
-def mFll_Stt_fe(laNewDir_s=None, laSortKey_cll=lambda _el: _el.name.upper(),
+def mFll_Stt_fe(laNewDir_s=None, laSortKey_cll=lambda _el: _el.name.lower(),
                      laScan_b:bool=True):
   if laNewDir_s is None: laNewDir_s = os.curdir # Init|RScan
   loDir_s = os.path.realpath(laNewDir_s)
@@ -127,7 +127,7 @@ def mA_MyInfo_ffmp(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
 # OutModItm
 def mA_victory_ffmp(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
   return mod.victory.main(None)
-  
+
 def mA_MyBankAcc_ffmp(laSf_o:mMenu_c, file:mSupportsWrite_ca=sys.stdout):
   return mod.MyBankAcc.main(None, fAFile4Prn_o=file)
 
